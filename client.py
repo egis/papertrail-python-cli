@@ -199,9 +199,9 @@ class Client:
                         "mode": "partial-sync"})
 
         if resp != None:
-            print resp.text 
+            print(resp.text)
         else: 
-            print 'no response from sync method'
+            print('no response from sync method')
 
     def main(self, options):
         getattr(self, options.action)(options.arg)
