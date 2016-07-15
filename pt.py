@@ -21,10 +21,10 @@ def status(client):
     client.status()
 
 @papertrail.command()
-@click.argument('query', default='')
+@click.argument('query', required=False)
 @click.pass_obj
 def pql(client, query):
-    if query == '':
+    if query is None:
         run_pql_repl(client)
     else:
         click.echo('Running %s' % query)
@@ -34,12 +34,18 @@ def pql(client, query):
 
 @papertrail.command()
 @click.argument('script')
+@click.argument('dest_file', required=False)
 @click.pass_obj
-def download_script(client, script):
+def download_script(client, script, dest_file):
     path = 'public/file/System/scripts/{0}/{0}'.format(script)
 
     response = client.get(path)
-    sys.stdout.write(response.text)
+
+    if dest_file is None:
+        dest_file = script
+
+    with open(dest_file, 'w') as f:
+        f.write(response.text)
 
 def update_doc():
     pass
