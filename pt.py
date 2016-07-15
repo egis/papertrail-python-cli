@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import sys
+
 import click
 
 from client import Client
@@ -34,10 +36,10 @@ def pql(client, query):
 @click.argument('script')
 @click.pass_obj
 def download_script(client, script):
-    path = 'public/file/System/scripts/{}'.format(script)
+    path = 'public/file/System/scripts/{0}/{0}'.format(script)
 
     response = client.get(path)
-    print(response)
+    sys.stdout.write(response.text)
 
 def update_doc():
     pass
