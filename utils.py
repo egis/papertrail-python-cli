@@ -50,15 +50,14 @@ class bgcolors:
 
 
 def print_info(str):
-    sys.stdout.write(bgcolors.HEADER + str + bgcolors.ENDC)
+    sys.stderr.write(bgcolors.HEADER + str + bgcolors.ENDC)
 
 
 def print_ok(str):
-    sys.stdout.write(bgcolors.OKGREEN + str + bgcolors.ENDC)
-
+    sys.stderr.write(bgcolors.OKGREEN + str + bgcolors.ENDC)
 
 def print_fail(str):
-    sys.stdout.write(bgcolors.FAIL + str + bgcolors.ENDC)
+    sys.stderr.write(bgcolors.FAIL + str + bgcolors.ENDC)
 
 
 def ping(host, port):
