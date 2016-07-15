@@ -15,8 +15,9 @@ class Client:
         self.username = username
         self.password = password
 
-    def post(self, url, data):
-        return http_post(self.url + "/" + url, data=data, headers={'csrf-token': self.cookie},  cookies={'JSESSIONID': self.cookie})
+    def post(self, url, data, headers={}):
+        headers.update({ 'csrf-token': self.cookie })
+        return http_post(self.url + "/" + url, data=data, headers=headers, cookies={'JSESSIONID': self.cookie})
 
     def get(self, url, data=None):
         return http_get(self.url + "/" + url, data=data, cookies={'JSESSIONID': self.cookie})
@@ -103,6 +104,19 @@ class Client:
 
     def change_mode(self, mode):
         self.post('system/changeMode/%s' % mode, {})
+
+    def upload_script(self, path, script):
+        result = self.post('public/file/System/scripts/{}'.format(path), data=script,
+                           headers={ 'Content-Type': 'application/octet-stream' })
+
+        if result.status_code >= 200 and result.status_code < 300:
+            self.redeploy_workflow()
+
+        return result
+
+    def redeploy_workflow(self):
+        return self.post('workflow/redeploy', {},
+                         headers={ 'Content-Type': 'application/octet-stream' })
 
     def execute(self, script):
         result = self.post('script/execute', {'code': script}).text

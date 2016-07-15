@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import webbrowser
 
 import click
 
@@ -47,20 +48,29 @@ def download_script(client, script, dest_file):
     with open(dest_file, 'w') as f:
         f.write(response.text)
 
+@papertrail.command()
 def update_doc():
     pass
 
-def update_script():
-    pass
+@papertrail.command()
+@click.argument('filename')
+@click.pass_obj
+def update_script(client, filename):
+    """Uploads and updates the script document from a provided file"""
+    with open(filename, 'rt') as f:
+        client.upload_script(filename, f.read())
 
+@papertrail.command()
 def new_token():
     pass
 
+@papertrail.command()
 def new_form():
-    pass
+    """Creates a new form from a provided filename"""  
+    webbrowser.open('http://')
 
 def new_classic():
-    pass
+    webbrowser.open('http://')
 
 if __name__ == '__main__':
     papertrail()
