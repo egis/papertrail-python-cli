@@ -25,6 +25,10 @@ def status(client):
 @click.argument('query', required=False)
 @click.pass_obj
 def pql(client, query):
+    """
+    Executes a PQL query and outputs the result.
+    Starts an interactive query shell if no query is provided.
+    """
     if query is None:
         run_pql_repl(client)
     else:
@@ -61,8 +65,12 @@ def update_script(client, filename):
         client.upload_script(filename, f.read())
 
 @papertrail.command()
-def new_token():
-    pass
+@click.argument('url')
+@click.pass_obj
+def new_token(client, url):
+    """Generates and outputs a new token for a provided URL"""
+    result = client.new_token(url)
+    click.echo(result.text)
 
 @papertrail.command()
 def new_form():

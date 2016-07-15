@@ -105,6 +105,9 @@ class Client:
     def change_mode(self, mode):
         self.post('system/changeMode/%s' % mode, {})
 
+    def new_token(self, url):
+        return self.get('token/generate', data={ 'url': url })
+
     def upload_script(self, path, script):
         result = self.post('public/file/System/scripts/{}'.format(path), data=script,
                            headers={ 'Content-Type': 'application/octet-stream' })
