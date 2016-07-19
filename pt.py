@@ -53,8 +53,12 @@ def download_script(client, script, dest_file):
         f.write(response.text)
 
 @papertrail.command()
-def update_doc():
-    pass
+@click.argument('node', help='Path to the node where the document should be updated')
+@click.argument('filename', help='Document name')
+@click.pass_obj
+def update_doc(client, node, filename):
+    with open(filename, 'r') as f:
+        client.update_document('{}/{}'.format(node, filename), f.read())
 
 @papertrail.command()
 @click.argument('filename')

@@ -108,9 +108,12 @@ class Client:
     def new_token(self, url):
         return self.get('token/generate', data={ 'url': url })
 
+    def update_document(self, path, contents):
+        return self.post('public/file/{}'.format(path), data=contents,
+                         headers={ 'Content-Type': 'application/octet-stream' })
+
     def upload_script(self, path, script):
-        result = self.post('public/file/System/scripts/{}'.format(path), data=script,
-                           headers={ 'Content-Type': 'application/octet-stream' })
+        result = self.update_document('System/scripts/{}'.format(path), script)
 
         if result.status_code >= 200 and result.status_code < 300:
             self.redeploy_workflow()
