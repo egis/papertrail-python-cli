@@ -46,10 +46,20 @@ def pql(client, query):
         print_pql_response(response)
 
 @papertrail.command()
+@click.argument('code')
+@click.pass_obj
+def eval(client, code):
+    """Evaluates script on the server"""
+    response = client.post('script/execute', { 'code': code })
+    sys.stdout.write(response.text.replace('\\n', '\n'))
+
+@papertrail.command()
 @click.argument('script')
 @click.argument('dest_file', required=False)
 @click.pass_obj
 def download_script(client, script, dest_file):
+    """Downloads a remote SCRIPT to DEST_FILE"""
+
     path = 'public/file/System/scripts/{0}/{0}'.format(script)
 
     response = client.get(path)
