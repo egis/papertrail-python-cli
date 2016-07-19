@@ -22,12 +22,11 @@ def status(client):
     client.status()
 
 @papertrail.command()
-@click.argument('filename')
+@click.argument('file', type=click.File('rb'))
 @click.pass_obj
-def deploy(client, filename):
-    """Deploys a package from a local FILENAME"""
-    with open(filename, 'rb') as f:
-        client.deploy_package(filename, f)
+def deploy(client, file):
+    """Deploys a package from a local FILE"""
+    client.deploy_package(file.name, file)
 
 @papertrail.command()
 @click.argument('query', required=False)
@@ -59,7 +58,6 @@ def eval(client, code):
 @click.pass_obj
 def download_script(client, script, dest_file):
     """Downloads a remote SCRIPT to DEST_FILE"""
-
     path = 'public/file/System/scripts/{0}/{0}'.format(script)
 
     response = client.get(path)
@@ -80,12 +78,11 @@ def update_doc(client, node, name):
         client.update_document('{}/{}'.format(node, name), f)
 
 @papertrail.command()
-@click.argument('filename')
+@click.argument('file', type=click.File('rt'))
 @click.pass_obj
-def update_script(client, filename):
-    """Uploads and updates the script document from a provided file"""
-    with open(filename, 'rt') as f:
-        client.upload_script(filename, f.read())
+def update_script(client, file):
+    """Uploads and updates the script document from a provided FILE"""
+    client.upload_script(file.name, file)
 
 @papertrail.command()
 @click.argument('url')
