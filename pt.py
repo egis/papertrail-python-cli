@@ -61,6 +61,18 @@ def execute(client, file):
     sys.stdout.write(response)
 
 @papertrail.command()
+@click.argument('path')
+@click.argument('file', type=click.File('rb'))
+@click.pass_obj
+def upload(client, path, file):
+    """
+    Uploads FILE to PATH.
+
+    E.g. upload System/scripts/TEST.groovy build/libTest.groovy
+    """
+    client.update_document(path, file)
+
+@papertrail.command()
 @click.argument('script')
 @click.argument('dest_file', required=False)
 @click.pass_obj
