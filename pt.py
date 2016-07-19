@@ -22,6 +22,14 @@ def status(client):
     client.status()
 
 @papertrail.command()
+@click.argument('filename')
+@click.pass_obj
+def deploy(client, filename):
+    """Deploys a package from a local FILENAME"""
+    with open(filename, 'rb') as f:
+        client.deploy_package(filename, f)
+
+@papertrail.command()
 @click.argument('query', required=False)
 @click.pass_obj
 def pql(client, query):

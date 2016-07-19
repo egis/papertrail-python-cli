@@ -15,9 +15,11 @@ class Client:
         self.username = username
         self.password = password
 
-    def post(self, url, data, headers={}):
+    def post(self, url, data, headers={}, **kwargs):
         headers.update({ 'csrf-token': self.cookie })
-        return http_post(self.url + "/" + url, data=data, headers=headers, cookies={'JSESSIONID': self.cookie})
+
+        return http_post(self.url + "/" + url, data=data, headers=headers,
+                         cookies={'JSESSIONID': self.cookie}, **kwargs)
 
     def get(self, url, data=None):
         return http_get(self.url + "/" + url, data=data, cookies={'JSESSIONID': self.cookie})
@@ -119,6 +121,13 @@ class Client:
             self.redeploy_workflow()
 
         return result
+
+    def deploy_package(self, filename, file_obj):
+        """
+        Deploys a binary archive package.
+        """
+        file_description = (filename, file_obj, 'application/octet-stream')
+        return self.post('action/execute/deploy_pack', {}, files={'file': file_description})
 
     def redeploy_workflow(self):
         return self.post('workflow/redeploy', {},

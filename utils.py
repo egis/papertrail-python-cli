@@ -139,15 +139,15 @@ def print_response(r):
         print_fail("[%s]\n %s\n" % (str(r.status_code), r.text))
 
 
-def http_post(url, data, headers={}, username=None, password=None, cookies=None):
+def http_post(url, data, headers={}, username=None, password=None, **kwargs):
     try:
 
         print_info(url + " ..  ")
         headers['User-Agent'] = 'Mozilla'
-        r = requests.post(url, data=data, verify=False, auth=(username, password), headers=headers, allow_redirects=False, cookies=cookies)
+        r = requests.post(url, data=data, verify=False, auth=(username, password), headers=headers, allow_redirects=False, **kwargs)
         if r.status_code > 300 and r.status_code < 400:
             print_ok(" -> " + r.headers['Location'] + "\n")
-            return http_post(r.headers['Location'], data=data, headers=headers, username=username, password=password, cookies=cookies)
+            return http_post(r.headers['Location'], data=data, headers=headers, username=username, password=password, **kwargs)
         print_response(r)
         return r
     except Exception, e:
