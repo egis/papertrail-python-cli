@@ -76,8 +76,8 @@ def download_script(client, script, dest_file):
 @click.pass_obj
 def update_doc(client, node, name):
     """Updates a document located at NODE/NAME from a local file with the same NAME."""
-    with open(name, 'r') as f:
-        client.update_document('{}/{}'.format(node, name), f.read())
+    with open(name, 'rb') as f:
+        client.update_document('{}/{}'.format(node, name), f)
 
 @papertrail.command()
 @click.argument('filename')
