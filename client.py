@@ -110,10 +110,6 @@ class Client:
     def new_token(self, url):
         return self.get('token/generate', data={ 'url': url })
 
-    def execute_script(self, script):
-        response = self.post('script/execute', { 'code': script })
-        return response.text.replace('\\n', '\n')
-
     def update_document(self, path, contents):
         return self.post('public/file/{}'.format(path), data=contents,
                          headers={ 'Content-Type': 'application/octet-stream' })
@@ -139,7 +135,7 @@ class Client:
 
     def execute(self, script):
         result = self.post('script/execute', {'code': script}).text
-        print script + "=" + result
+        # print script + "=" + result
         result = result.split("=")[1]
         result = str(result).replace("\\n", "").strip()
         return result
