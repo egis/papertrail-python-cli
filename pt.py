@@ -2,6 +2,7 @@
 
 import sys
 import webbrowser
+from os.path import basename
 
 import click
 
@@ -26,7 +27,7 @@ def status(client):
 @click.pass_obj
 def deploy(client, file):
     """Deploys a package from a local FILE"""
-    client.deploy_package(file.name, file)
+    client.deploy_package(basename(file.name), file)
 
 @papertrail.command()
 @click.argument('query', required=False)
@@ -90,19 +91,18 @@ def download_script(client, script, dest_file):
 
 @papertrail.command()
 @click.argument('node')
-@click.argument('name')
+@click.argument('file', type=click.File('rb'))
 @click.pass_obj
-def update_doc(client, node, name):
-    """Updates a document located at NODE/NAME from a local file with the same NAME."""
-    with open(name, 'rb') as f:
-        client.update_document('{}/{}'.format(node, name), f)
+def update_doc(client, node, file):
+    """Updates a document located at NODE/FILE from a local FILE."""
+    client.update_document('{}/{}'.format(node, basename(file.name)), file)
 
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
 @click.pass_obj
 def update_script(client, file):
     """Uploads and updates the script document from a provided FILE"""
-    client.upload_script(file.name, file)
+    client.upload_script(basename(file.name), file)
 
 @papertrail.command()
 @click.argument('url')
