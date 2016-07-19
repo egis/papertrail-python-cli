@@ -30,6 +30,12 @@ def deploy(client, file):
     client.deploy_package(basename(file.name), file)
 
 @papertrail.command()
+@click.pass_obj
+def redeploy(client):
+    """Redeploys workflows"""
+    client.redeploy_workflow()
+
+@papertrail.command()
 @click.argument('query', required=False)
 @click.pass_obj
 def pql(client, query):
