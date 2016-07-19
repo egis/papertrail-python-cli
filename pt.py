@@ -113,13 +113,16 @@ def update_script(client, file):
 @click.pass_obj
 def new_token(client, url):
     """Generates and outputs a new token for a provided URL"""
-    result = client.new_token(url)
-    click.echo(result.text)
+    click.echo(client.new_token(url))
 
 @papertrail.command()
-def new_form():
-    """Creates a new form from a provided filename"""  
-    webbrowser.open('http://')
+@click.argument('form_name')
+@click.pass_obj
+def new_form(client, form_name):
+    """Creates a new form from a provided FORM_NAME"""
+    doc_id = client.new_form(form_name)['docId']
+    token = client.new_token('/web/eSign')
+    webbrowser.open('{}?{}'.format(token, doc_id))
 
 def new_classic():
     webbrowser.open('http://')

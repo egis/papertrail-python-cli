@@ -108,7 +108,18 @@ class Client:
         self.post('system/changeMode/%s' % mode, {})
 
     def new_token(self, url):
-        return self.get('token/generate', data={ 'url': url })
+        response = self.get('token/generate', data={ 'url': url })
+        if response.status_code == 200:
+            return response.text
+        else:
+            response.raise_for_status()
+
+    def new_form(self, form):
+        response = self.post('action/execute/new_form', { 'form': form })
+        if response.status_code == 200:
+            return response.json()
+        else:
+            response.raise_for_status()
 
     def update_document(self, path, contents):
         return self.post('public/file/{}'.format(path), data=contents,
