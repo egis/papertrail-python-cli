@@ -49,8 +49,16 @@ def pql(client, query):
 @click.pass_obj
 def eval(client, code):
     """Evaluates script on the server"""
-    response = client.post('script/execute', { 'code': code })
-    sys.stdout.write(response.text.replace('\\n', '\n'))
+    response = client.execute_script(code)
+    sys.stdout.write(response)
+
+@papertrail.command()
+@click.argument('file', type=click.File('rt'))
+@click.pass_obj
+def execute(client, file):
+    """Executes a script FILE on the server"""
+    response = client.execute_script(file.read())
+    sys.stdout.write(response)
 
 @papertrail.command()
 @click.argument('script')
