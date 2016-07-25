@@ -124,8 +124,14 @@ def new_form(client, form_name):
     token = client.new_token('/web/eSign')
     webbrowser.open('{}?{}'.format(token, doc_id))
 
-def new_classic():
-    webbrowser.open('http://')
+@papertrail.command()
+@click.argument('form_name')
+@click.pass_obj
+def new_classic(client, form_name):
+    """Creates a new form from a provided FORM_NAME, using the classic UI"""
+    doc_id = client.new_form(form_name)['docId']
+    token = client.new_token('/jsForm/edit/')
+    webbrowser.open('{}?{}'.format(token, doc_id))
 
 if __name__ == '__main__':
     papertrail()
