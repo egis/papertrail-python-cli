@@ -18,11 +18,6 @@ def papertrail(ctx, host, username, password):
     ctx.obj = Client(host, username, password)
 
 @papertrail.command()
-@click.pass_obj
-def status(client):
-    client.status()
-
-@papertrail.command()
 @click.argument('file', type=click.File('rb'))
 @click.pass_obj
 def deploy(client, file):

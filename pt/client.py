@@ -181,24 +181,6 @@ class Client:
             if not " INFO " in line:
                 print line
 
-    def ansible(self, cmd):
-        ansible = Ansible(host=self.name + ".papertrail.co.za")
-        return ansible.execute(cmd)
-
-    def shutdown(self):
-        self.ansible("shutdown -h now")
-
-    def papertrail(self,  arg):
-        print self.ansible('/etc/init.d/papertrail %s' % arg)
-
-    def sql(self, url, options):
-        try:
-            print check_output(
-                "/usr/local/bin/ansible --sudo -i %s  %s -m shell -a \"sudo -i -u postgres psql papertrail -c \\\"%s\\\"\"" %
-                (self.inventory, self.host, options.arg), shell=True)
-        except Exception, e:
-            print self.host + str(e)
-
     def stop(self):
         self.papertrail("stop")
 
@@ -207,9 +189,6 @@ class Client:
 
     def restart(self):
         self.papertrail("restart")
-
-    def status(self):
-        self.papertrail("status")
 
     def reset_password(self, newPassword):
         self.post("action/execute/change_password", {
@@ -247,56 +226,3 @@ class Client:
             print(resp.text)
         else: 
             print('no response from sync method')
-
-    def main(self, options):
-        getattr(self, options.action)(options.arg)
-
-
-if __name__ == "__main__":
-    parser = OptionParser()
-    parser.add_option("-i", "--inventory", dest="inventory",
-                      help="path to ansible inventory file")
-    parser.add_option("-l", "--limit",default="papertrail",
-                      dest="limit",
-                      help="ansible -l option")
-    parser.add_option("-a", "--arg",
-                      dest="arg",
-                      help="arguments")
-    parser.add_option("-p", "--password",
-                      dest="pwd",
-                      help="PaperTrail admin password")
-    parser.add_option("-t", "--action", dest="action",
-                      help="an action to invoke: index_rebuild,task_list,fs_list,fs_sync,reset_password,status,restart,stop,start,log,sql,sessions,index_rebuild,index_repair,reset_password,reset_password_sql")
-    parser.add_option("-s", "--ssl", action="store_true", dest="ssl")
-    parser.add_option("-d", "--debug", action="store_true", dest="debug")
-    (options, args) = parser.parse_args()
-    if (options.debug):
-        httplib.HTTPConnection.debuglevel = 1
-        # You must initialize logging, otherwise you'll not see debug output.
-        logging.basicConfig()
-        logging.getLogger().setLevel(logging.DEBUG)
-        requests_log = logging.getLogger("requests.packages.urllib3")
-        requests_log.setLevel(logging.DEBUG)
-        requests_log.propagate = True
-
-    if (options.action == None):
-        parser.print_help()
-    else:
-
-        if  options.pwd == None and "ADMIN_PASS" in os.environ:
-            options.pwd = os.environ['ADMIN_PASS']
-
-        if (options.pwd == None):
-            options.pwd = raw_input("Enter Password: ")
-
-        hosts = check_output("/usr/local/bin/ansible -i %s  %s --list-hosts" % (options.inventory, options.limit),
-                             shell=True).split("\n")
-        for host in hosts:
-            if host == None or host == '':
-                continue
-            options.host = host.strip()
-            try: 
-                Client("https://%s" % host.strip()).main(options)
-            except Exception, e:
-                print_fail (host + str(e) + "\n")
-        
