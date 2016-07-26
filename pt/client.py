@@ -1,4 +1,5 @@
 import json
+from requests.auth import HTTPBasicAuth
 
 from pt_lib import *
 from utils import *
@@ -10,19 +11,16 @@ class Client:
         self.url = url.strip()
         self.name = self.url.split(".")[0].split('/')[2]
         self.host = self.name
-        r = http_post(self.url + "/party/login",{"login": username, "password":password})
-        self.cookie = r.cookies['JSESSIONID']
         self.username = username
         self.password = password
 
     def post(self, url, data, headers={}, **kwargs):
-        headers.update({ 'csrf-token': self.cookie })
-
         return http_post(self.url + "/" + url, data=data, headers=headers,
-                         cookies={'JSESSIONID': self.cookie}, **kwargs)
+                         username=self.username, password=self.password, **kwargs)
 
     def get(self, url, data=None):
-        return http_get(self.url + "/" + url, data=data, cookies={'JSESSIONID': self.cookie})
+        return http_get(self.url + "/" + url, data=data,
+                        username=self.username, password=self.password, **kwargs)
 
     def pql_query(self, query):
         response = self.get('document/pql', { 'query': query, 'includeMetadata': True })
