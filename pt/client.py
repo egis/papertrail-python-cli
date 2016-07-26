@@ -1,7 +1,6 @@
 import json
 from requests.auth import HTTPBasicAuth
 
-from pt_lib import *
 from utils import *
 
 
