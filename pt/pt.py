@@ -73,6 +73,22 @@ def upload(client, path, file):
     client.update_document(path, file)
 
 @papertrail.command()
+@click.argument('path')
+@click.argument('dest_file', required=False)
+@click.pass_obj
+def download(client, path, dest_file):
+    """Downloads a remote PATH to DEST_FILE"""
+    full_path = 'public/file/{0}/{1}'.format(path, basename(path))
+    response = client.get(full_path)
+
+    if response.status_code == 200:
+        if dest_file is None:
+            dest_file = basename(path)
+
+        with open(dest_file, 'w') as f:
+            f.write(response.text)
+
+@papertrail.command()
 @click.argument('script')
 @click.argument('dest_file', required=False)
 @click.pass_obj
@@ -82,11 +98,12 @@ def download_script(client, script, dest_file):
 
     response = client.get(path)
 
-    if dest_file is None:
-        dest_file = script
+    if response.status_code == 200:
+        if dest_file is None:
+            dest_file = script
 
-    with open(dest_file, 'w') as f:
-        f.write(response.text)
+        with open(dest_file, 'w') as f:
+            f.write(response.text)
 
 @papertrail.command()
 @click.argument('node')
