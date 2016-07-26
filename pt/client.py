@@ -17,7 +17,7 @@ class Client:
         return http_post(self.url + "/" + url, data=data, headers=headers,
                          username=self.username, password=self.password, **kwargs)
 
-    def get(self, url, data=None):
+    def get(self, url, data=None, **kwargs):
         return http_get(self.url + "/" + url, data=data,
                         username=self.username, password=self.password, **kwargs)
 
