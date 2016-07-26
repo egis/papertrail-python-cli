@@ -145,8 +145,13 @@ class Client:
     def execute(self, script):
         result = self.post('script/execute', {'code': script})
         if result.status_code == 200:
-            result = result.text.split("=")[1]
+            result = result.text
+
+            if 'result =' in result:
+                result = result.split("=")[1]
+
             result = str(result).replace("\\n", "").strip()
+
             return result
         else:
             result.raise_for_status()
