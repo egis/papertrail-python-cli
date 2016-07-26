@@ -51,7 +51,20 @@ def pql(client, query):
 @click.pass_obj
 def eval(client, code):
     """Evaluates script on the server"""
-    click.echo(client.execute(code))
+
+    prefix = """
+    import com.egis.*;
+    import com.egis.kernel.*;
+    import com.egis.kernel.db.*;
+    import com.egis.utils.*;
+    import com.egis.data.*;
+    import com.egis.data.node.*;
+    import com.egis.data.party.*;
+    Session s = Kernel.get(Session.class);
+    DbManager db = Kernel.get(DbManager.class);
+    """
+
+    click.echo(client.execute(prefix + code))
 
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
