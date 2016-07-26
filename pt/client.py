@@ -143,11 +143,13 @@ class Client:
                          headers={ 'Content-Type': 'application/octet-stream' })
 
     def execute(self, script):
-        result = self.post('script/execute', {'code': script}).text
-        # print script + "=" + result
-        result = result.split("=")[1]
-        result = str(result).replace("\\n", "").strip()
-        return result
+        result = self.post('script/execute', {'code': script})
+        if result.status_code == 200:
+            result = result.text.split("=")[1]
+            result = str(result).replace("\\n", "").strip()
+            return result
+        else:
+            result.raise_for_status()
 
     def sessions(self,  options):
         try:

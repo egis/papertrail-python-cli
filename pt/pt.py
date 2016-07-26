@@ -10,9 +10,9 @@ from client import Client
 from pql import print_pql_response, run_pql_repl
 
 @click.group()
-@click.option('--username', default='admin', envvar='PT_API_USER')
-@click.option('--password', default='1', envvar='ADMIN_PASS')
-@click.option('--host', default='http://localhost:8080', envvar='PT_API')
+@click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
+@click.option('--password', default='p', envvar='PT_PASS', help='or use the PT_PASS environment variable')
+@click.option('--host', default='http://localhost:8080', envvar='PT_API', help='or use the PT_API environment variable')
 @click.pass_context
 def papertrail(ctx, host, username, password):
     ctx.obj = Client(host, username, password)
