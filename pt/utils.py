@@ -154,19 +154,18 @@ def http_post(url, data, headers={}, username=None, password=None, **kwargs):
         print_fail(str(e))
 
 
-def http_get(url, data=None, username=None, password=None, cookies=None):
+def http_get(url, data=None, username=None, password=None, **kwargs):
     try:
         print_info(url + " ..  ")
 
         r = requests.get(url, params=data, verify=False,
                          headers={"User-Agent": 'Mozilla'},
                          auth=(username, password),
-                         cookies=cookies,
-                         allow_redirects=False)
+                         allow_redirects=False, **kwargs)
 
         if r.status_code > 300 and r.status_code < 400:
             print_ok(" -> " + r.headers['Location'] + "\n")
-            return http_get(r.headers['Location'], data, username, password, cookies)
+            return http_get(r.headers['Location'], data, username, password, **kwargs)
 
         print_response(r)
 

@@ -18,11 +18,6 @@ def papertrail(ctx, host, username, password):
     ctx.obj = Client(host, username, password)
 
 @papertrail.command()
-@click.pass_obj
-def status(client):
-    client.status()
-
-@papertrail.command()
 @click.argument('file', type=click.File('rb'))
 @click.pass_obj
 def deploy(client, file):
@@ -56,7 +51,20 @@ def pql(client, query):
 @click.pass_obj
 def eval(client, code):
     """Evaluates script on the server"""
-    click.echo(client.execute(code))
+
+    prefix = """
+    import com.egis.*;
+    import com.egis.kernel.*;
+    import com.egis.kernel.db.*;
+    import com.egis.utils.*;
+    import com.egis.data.*;
+    import com.egis.data.node.*;
+    import com.egis.data.party.*;
+    Session s = Kernel.get(Session.class);
+    DbManager db = Kernel.get(DbManager.class);
+    """
+
+    click.echo(client.execute(prefix + code))
 
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
@@ -78,6 +86,22 @@ def upload(client, path, file):
     client.update_document(path, file)
 
 @papertrail.command()
+@click.argument('path')
+@click.argument('dest_file', required=False)
+@click.pass_obj
+def download(client, path, dest_file):
+    """Downloads a remote PATH to DEST_FILE"""
+    full_path = 'public/file/{0}/{1}'.format(path, basename(path))
+    response = client.get(full_path)
+
+    if response.status_code == 200:
+        if dest_file is None:
+            dest_file = basename(path)
+
+        with open(dest_file, 'w') as f:
+            f.write(response.text)
+
+@papertrail.command()
 @click.argument('script')
 @click.argument('dest_file', required=False)
 @click.pass_obj
@@ -87,11 +111,12 @@ def download_script(client, script, dest_file):
 
     response = client.get(path)
 
-    if dest_file is None:
-        dest_file = script
+    if response.status_code == 200:
+        if dest_file is None:
+            dest_file = script
 
-    with open(dest_file, 'w') as f:
-        f.write(response.text)
+        with open(dest_file, 'w') as f:
+            f.write(response.text)
 
 @papertrail.command()
 @click.argument('node')
