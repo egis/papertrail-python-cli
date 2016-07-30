@@ -69,6 +69,20 @@ def eval(client, code):
     click.echo(client.execute(prefix + code))
 
 @papertrail.command()
+@click.argument('url', nargs=1)
+@click.argument('data', nargs=-1)
+@click.pass_obj
+def form(client, url, data):
+    """
+    Makes a generic POST form request to a provided URL, optionally passing a DATA set in the 'key=value' format.
+
+    Usage example:
+    pt form execute/action key=value
+    """
+    data = { pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data) }
+    client.post(url, data)
+
+@papertrail.command()
 @click.argument('file', type=click.File('rt'))
 @click.pass_obj
 def execute(client, file):
