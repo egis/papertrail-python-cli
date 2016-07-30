@@ -15,6 +15,8 @@ from pql import print_pql_response, run_pql_repl
 @click.option('--host', default='http://localhost:8080', envvar='PT_API', help='or use the PT_API environment variable')
 @click.pass_context
 def papertrail(ctx, host, username, password):
+    if not host.startswith('http://') and not host.startswith('https://'):
+        host = 'http://' + host
     ctx.obj = Client(host, username, password)
 
 @papertrail.command()
