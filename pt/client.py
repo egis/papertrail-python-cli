@@ -23,7 +23,8 @@ class Client:
 
     def pql_query(self, query):
         response = self.get('document/pql', { 'query': query, 'includeMetadata': True })
-        return response.json()
+        if response.status_code == 200:
+            return response.json()
 
     def db_backup(self):
         start = Timer()
@@ -108,15 +109,11 @@ class Client:
         response = self.get('token/generate', data={ 'url': url })
         if response.status_code == 200:
             return response.text
-        else:
-            response.raise_for_status()
 
     def new_form(self, form):
         response = self.post('action/execute/new_form', { 'form': form })
         if response.status_code == 200:
             return response.json()
-        else:
-            response.raise_for_status()
 
     def update_document(self, path, contents):
         return self.post('public/file/{}'.format(path), data=contents,
@@ -149,11 +146,9 @@ class Client:
             if 'result =' in result:
                 result = result.split("=")[1]
 
-            result = str(result).replace("\\n", "").strip()
+            result = str(result).replace("\\n", "\n").strip()
 
             return result
-        else:
-            result.raise_for_status()
 
     def sessions(self,  options):
         try:

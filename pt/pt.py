@@ -7,7 +7,7 @@ from os.path import basename
 import click
 
 from client import Client
-from pql import print_pql_response, run_pql_repl
+from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 
 @click.group()
 @click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
@@ -34,8 +34,10 @@ def redeploy(client):
 
 @papertrail.command()
 @click.argument('query', required=False)
+@click.option('--format', default='user', type=click.Choice(['user', 'csv', 'json', 'column']),
+            help='Data output format. Use "user" for human-readable data. Use "column" for a single-row output of the first column (e.g. for xargs).')
 @click.pass_obj
-def pql(client, query):
+def pql(client, query, format):
     """
     Executes a PQL query and outputs the result.
     Starts an interactive query shell if no query is provided.
@@ -43,10 +45,18 @@ def pql(client, query):
     if query is None:
         run_pql_repl(client)
     else:
-        click.echo('Running %s' % query)
-
         response = client.pql_query(query)
-        print_pql_response(response)
+        sys.stderr.write('\nRunning %s\n\n' % query)
+        if response is not None:
+            if format == 'user':
+                print_pql_response(response)
+            elif format == 'csv':
+                print_pql_csv(response)
+            elif format == 'column':
+                for row in response['items']:
+                    print(row[0])
+            elif format == 'json':
+                print_pql_json(response)
 
 @papertrail.command()
 @click.argument('code')

@@ -138,6 +138,11 @@ def print_process(p, prefix=''):
 def print_response(r):
     if r.status_code >= 200 and r.status_code < 300:
         print_ok(str(r.status_code) + "\n")
+    elif r.status_code == 401:
+        print_fail("[%s]\nInvalid password or username, or you don't have access to the URL.\n" % (str(r.status_code)))
+    elif r.status_code == 500:
+        error = r.json()
+        print_fail("[%s]\n%s (Error: %s)\n" % (str(r.status_code), error['errorMessage'], error['context']))
     else:
         print_fail("[%s]\n %s\n" % (str(r.status_code), r.text))
 
@@ -147,6 +152,7 @@ def http_post(url, data, headers={}, username=None, password=None, **kwargs):
 
         print_info(url + " ..  ")
         headers['User-Agent'] = 'Mozilla'
+        headers['jsonErrors'] = 'true'
         r = requests.post(url, data=data, verify=False, auth=(username, password), headers=headers, allow_redirects=False, **kwargs)
         if r.status_code > 300 and r.status_code < 400:
             print_ok(" -> " + r.headers['Location'] + "\n")
@@ -162,7 +168,7 @@ def http_get(url, data=None, username=None, password=None, **kwargs):
         print_info(url + " ..  ")
 
         r = requests.get(url, params=data, verify=False,
-                         headers={"User-Agent": 'Mozilla'},
+                         headers={"User-Agent": 'Mozilla', 'jsonErrors': 'true'},
                          auth=(username, password),
                          allow_redirects=False, **kwargs)
 
