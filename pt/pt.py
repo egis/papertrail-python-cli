@@ -34,8 +34,8 @@ def redeploy(client):
 
 @papertrail.command()
 @click.argument('query', required=False)
-@click.option('--format', default='user', type=click.Choice(['user', 'csv', 'json']),
-            help='Data output format. Use "user" for human-readable data.')
+@click.option('--format', default='user', type=click.Choice(['user', 'csv', 'json', 'column']),
+            help='Data output format. Use "user" for human-readable data. Use "column" for a single-row output of the first column (e.g. for xargs).')
 @click.pass_obj
 def pql(client, query, format):
     """
@@ -52,6 +52,9 @@ def pql(client, query, format):
                 print_pql_response(response)
             elif format == 'csv':
                 print_pql_csv(response)
+            elif format == 'column':
+                for row in response['items']:
+                    print(row[0])
             elif format == 'json':
                 print_pql_json(response)
 
