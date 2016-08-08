@@ -1,6 +1,7 @@
-import os
+import os, sys
 import atexit
 import readline
+import csv, json
 
 from utils import http_get
 
@@ -21,7 +22,24 @@ def run_pql_repl(client):
         if response is not None:
             print_pql_response(response)
 
+def print_pql_csv(data):
+    if not ('items' in data):
+        raise Exception('Invalid data in response:', data)
+
+    csvwriter = csv.writer(sys.stdout)
+
+    # Write header
+    csvwriter.writerow(map(lambda meta: meta['label'], data['metadata']))
+
+    # Write data rows
+    for row in data['items']:
+        csvwriter.writerow(row)
+
+def print_pql_json(data):
+    print(json.dumps(data, indent=2))
+
 def print_pql_response(data):
+    """Prints response in a human-readable format"""
     if not ('items' in data):
         raise Exception('Invalid data in response:', data)
 
