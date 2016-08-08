@@ -35,12 +35,32 @@ def redeploy(client):
 @papertrail.command()
 @click.argument('query', required=False)
 @click.option('--format', default='user', type=click.Choice(['user', 'csv', 'json', 'column']),
-            help='Data output format. Use "user" for human-readable data. Use "column" for a single-row output of the first column (e.g. for xargs).')
+            help='Data output format')
 @click.pass_obj
 def pql(client, query, format):
     """
     Executes a PQL query and outputs the result.
+
     Starts an interactive query shell if no query is provided.
+
+    Use FORMAT option to provide an output format.
+    "user" outputs human-readable data (it's used by default).
+    "column" outputs the first column of each result row (it's useful e.g. for xargs).
+    "csv" and "json" outputs data in the respective formats.
+
+    \033[1mExamples\033[0m
+
+    awk selector for CSV output:
+
+      pt pql --format csv "SELECT docId FROM node" | awk -F "," '{ print $1 }'
+
+    with xargs:
+
+      pt pql --format column "SELECT docId FROM node" | xargs
+
+    with the JSON output and jq:
+
+      pt pql --format json "SELECT docId FROM node" | jq '.items[0]'
     """
     if query is None:
         run_pql_repl(client)

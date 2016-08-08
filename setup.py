@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='pt',
-    version='0.2.2',
+    version='0.2.3',
     install_requires=[
         'Click',
         'requests'
