@@ -44,9 +44,9 @@ def pql(client, query):
         run_pql_repl(client)
     else:
         click.echo('Running %s' % query)
-
         response = client.pql_query(query)
-        print_pql_response(response)
+        if response is not None:
+            print_pql_response(response)
 
 @papertrail.command()
 @click.argument('code')
