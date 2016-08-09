@@ -8,6 +8,7 @@ import click
 
 from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
+import service
 
 @click.group()
 @click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
@@ -111,6 +112,35 @@ def form(client, url, data):
     """
     data = { pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data) }
     client.post(url, data)
+
+@papertrail.command(name="service")
+@click.argument('action', type=click.Choice(['start', 'stop', 'restart', 'status']))
+def _service(action):
+    """
+    Manages a local Papertrail service.
+
+    Use the PT_ROOT environment variable to override the default installation path.
+    """
+    if action == 'start':
+        if service.get_pid() is not None:
+            print("PaperTrail already started")
+        else:
+            if service.start():
+                print('\nStarted PaperTrail')
+    elif action == 'stop':
+        if service.stop():
+            print('\nStopped PaperTrail')
+        else:
+            print('PaperTrail is not running')
+    elif action == 'restart':
+        service.stop()
+        service.start()
+    elif action == 'status':
+        pid = service.get_pid()
+        if pid is not None:
+            print("PaperTrail started (%d)" % (pid))
+        else:
+            print("PaperTrail not started")
 
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
