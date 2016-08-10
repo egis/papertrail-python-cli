@@ -123,24 +123,24 @@ def _service(action):
     """
     if action == 'start':
         if service.get_pid() is not None:
-            print("PaperTrail already started")
+            click.echo("PaperTrail already started")
         else:
             if service.start():
-                print('\nStarted PaperTrail')
+                click.echo('\nStarted PaperTrail')
     elif action == 'stop':
         if service.stop():
-            print('\nStopped PaperTrail')
+            click.echo('\nStopped PaperTrail')
         else:
-            print('PaperTrail is not running')
+            click.echo('PaperTrail is not running')
     elif action == 'restart':
         service.stop()
         service.start()
     elif action == 'status':
         pid = service.get_pid()
         if pid is not None:
-            print("PaperTrail started (%d)" % (pid))
+            click.echo("PaperTrail started (%d)" % (pid))
         else:
-            print("PaperTrail not started")
+            click.echo("PaperTrail not started")
 
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
