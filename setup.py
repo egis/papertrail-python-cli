@@ -4,10 +4,11 @@ from setuptools import setup
 
 setup(
     name='pt',
-    version='0.2.3',
+    version='0.2.4',
     install_requires=[
         'Click',
-        'requests'
+        'requests',
+        'progressbar2'
     ],
     author='Egis Software',
     url='http://papertrail.co.za',

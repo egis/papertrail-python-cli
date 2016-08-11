@@ -1,2 +1,6 @@
 click==6.6
+progressbar2==3.10.0
+-e git+git@github.com:egis/papertrail-python-cli.git@7ae5050389f156353dc21a27a0dca75a19f0242d#egg=pt
+python-utils==2.0.0
 requests==2.10.0
+six==1.10.0
