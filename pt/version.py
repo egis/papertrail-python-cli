@@ -5,6 +5,7 @@ handles downloads of upgrade packages.
 
 import requests
 import progressbar
+from os.path import exists
 
 S3_BUCKET = "https://s3.amazonaws.com/papertrail"
 
@@ -12,9 +13,22 @@ STABLE = "stable"
 NIGHTLY = "nightly"
 STABLE_NIGHTLY = "stable_nightly"
 
-def download(build, output):
+LOCAL_VERSION_PATH = "/opt/latestBuildNo"
+
+def get_local_version():
+    """Returns a version of the local Papertrail instance, if it's installed"""
+    if exists(LOCAL_VERSION_PATH):
+        return open(LOCAL_VERSION_PATH).read()
+
+def store_local_version(build):
+    """Stores a currently installed version"""
+    with open(LOCAL_VERSION_PATH, 'w') as f:
+        f.write(build)
+
+def download(build, output, extension = "sh"):
     """Downloads a specific version of the Papertrail installation package."""
-    url = (S3_BUCKET + "/public/nightly/build/Papertrail_%s.sh") % (build)
+    url = (S3_BUCKET + "/public/nightly/build/Papertrail_%s.%s") % (build, extension)
+    print(url)
 
     response = requests.get(url, stream=True)
     size = response.headers['content-length']
@@ -34,7 +48,7 @@ def download(build, output):
                 progress.update(nbytes)
                 f.write(chunk)
 
-    r.close()
+    response.close()
 
 def get_build(version_identifier):
     """Retrieves a build and version number."""

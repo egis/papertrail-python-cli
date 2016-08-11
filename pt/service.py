@@ -94,4 +94,26 @@ def start():
             sys.stdout.flush()
             time.sleep(1)
 
+        sys.stdout.write('\n')
+
         return get_pid()
+
+def uninstall():
+    """Uninstalls the local Papertrail instance"""
+    if PLATFORM == "nt":
+        pass
+    else:
+        stop()
+        subprocess.Popen(["sh", "%s/uninstall" % (PT_ROOT), "-q"], stdout=subprocess.PIPE).communicate()
+
+def install(package):
+    """Installs a new local Papertrail instance from the provided package (exe/sh)"""
+    if PLATFORM == "nt":
+        subprocess.Popen(["./Papertrail.exe"]).communicate()
+    else:
+        subprocess.Popen(["sh", "/opt/Papertrail.sh", "-q"], stdout=subprocess.PIPE).communicate()
+
+def upgrade(package):
+    """Upgrades the local Papertrail instance using the provided package (exe/sh)"""
+    uninstall()
+    install(package)
