@@ -10,6 +10,7 @@ from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import version as ver
+import commands
 
 @click.group()
 @click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
@@ -268,6 +269,9 @@ def new_classic(client, form_name):
     doc_id = client.new_form(form_name)['docId']
     token = client.new_token('/jsForm/edit/')
     webbrowser.open('{}?{}'.format(token, doc_id))
+
+
+commands.init_plugins(papertrail)
 
 if __name__ == '__main__':
     papertrail()
