@@ -1,3 +1,5 @@
+import json
+
 from utils import *
 
 
@@ -93,10 +95,7 @@ class Client:
                 raise BaseException("Property did not update: " + data[key] + "=" + props[key])
 
     def get_properties(self):
-        props = {}
-        for prop in self.get('property/list').json():
-            props[prop['name']] = prop['value']
-        return props
+        return {prop['name']: prop['value'] for prop in self.get('property/list').json()}
 
     def change_mode(self, mode):
         self.post('system/changeMode/%s' % mode, {})
@@ -164,20 +163,9 @@ class Client:
 
     def sessions(self):
         try:
-            r = self.get('dao/listFull/UserSession?filter=%5B%7B%22value%22%3A%22%22%2C%22field%22%3A%22endDate%22%2C%22type%22%3A%22null%22%7D%5D')
-            sessions = r.json()
-            print "%s %s (%s) %s" % (bgcolors.OKBLUE, self.host, sessions["totalCount"], bgcolors.ENDC)
-            for item in sessions["items"]:
-                if "lastAccessTime" not in item:
-                    continue
-                if "Administrator" == item['user'] and '41.160.64.194' == item['host']:
-                    continue 
-                if "userAgent" not in item:
-                    item["userAgent"] = ""
-                print "%s (%s - %s) - %s/%s" % (
-                    item['user'], item["startDate"], item['lastAccessTime'], item["host"], item["userAgent"])
-                # print "{:30s} {:20s} ({:30s}) {:10s}".format(item['user'],
-                # item['startDate'], item['lastAccessTime'], item['userAgent'])
+            filters = [{'value': '', 'field': 'endDate', 'type': 'null'}]
+            r = self.get('dao/listFull/UserSession', data={'filter': json.dumps(filters)})
+            return r.json()
         except Exception, e:
             print e
 
@@ -208,17 +196,17 @@ class Client:
 
     def fs_list(self):
         stores = self.get('dao/list/FileStore').json()
-        if len(stores) == 0:
+        if not stores:
             return
         for store in stores["items"]:
             print store
 
     def fs_sync(self, threads=4):
         resp = self.post("action/execute/synchronize_stores",
-                  data={"readFrom": 'Local Store', "writeTo": "Cloud Store", "threads": threads,
-                        "mode": "partial-sync"})
+                         data={"readFrom": 'Local Store', "writeTo": "Cloud Store", "threads": threads,
+                               "mode": "partial-sync"})
 
         if resp is not None:
             print(resp.text)
-        else: 
+        else:
             print('no response from sync method')

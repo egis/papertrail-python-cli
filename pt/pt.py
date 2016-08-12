@@ -10,6 +10,7 @@ from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import commands
+from utils import bgcolors
 
 
 @click.group()
@@ -250,6 +251,33 @@ def new_classic(client, form_name):
     doc_id = client.new_form(form_name)['docId']
     token = client.new_token('/jsForm/edit/')
     webbrowser.open('{}?{}'.format(token, doc_id))
+
+
+@papertrail.command()
+@click.option('--count-only', is_flag=True, default=False)
+@click.option('--since', required=False)
+@click.pass_obj
+def sessions(client, count_only, since):
+    """Lists currently active sessions on the server."""
+    sessions = client.sessions()
+
+    if count_only:
+        print(sessions['totalCount'])
+        return
+
+    print("%s %s (%s) %s" % (bgcolors.OKBLUE, client.host, sessions['totalCount'], bgcolors.ENDC))
+
+    for item in sessions["items"]:
+        if "lastAccessTime" not in item:
+            continue
+        if "Administrator" == item['user'] and '41.160.64.194' == item['host']:
+            continue
+        if "userAgent" not in item:
+            item["userAgent"] = ""
+        print("%s (%s - %s) - %s/%s" % (
+            item['user'], item["startDate"], item['lastAccessTime'], item["host"], item["userAgent"]))
+        # print "{:30s} {:20s} ({:30s}) {:10s}".format(item['user'],
+        # item['startDate'], item['lastAccessTime'], item['userAgent'])
 
 
 @papertrail.command()
