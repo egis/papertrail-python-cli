@@ -11,6 +11,7 @@ from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import commands
 
+
 @click.group()
 @click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
 @click.option('--password', default='p', envvar='PT_PASS', help='or use the PT_PASS environment variable')
@@ -21,6 +22,7 @@ def papertrail(ctx, host, username, password):
         host = 'http://' + host
     ctx.obj = Client(host, username, password)
 
+
 @papertrail.command()
 @click.argument('file', type=click.File('rb'))
 @click.pass_obj
@@ -28,16 +30,18 @@ def deploy(client, file):
     """Deploys a package from a local FILE"""
     client.deploy_package(basename(file.name), file)
 
+
 @papertrail.command()
 @click.pass_obj
 def redeploy(client):
     """Redeploys workflows"""
     client.redeploy_workflow()
 
+
 @papertrail.command()
 @click.argument('query', required=False)
 @click.option('--format', default='user', type=click.Choice(['user', 'csv', 'json', 'column']),
-            help='Data output format')
+              help='Data output format')
 @click.pass_obj
 def pql(client, query, format):
     """
@@ -80,10 +84,11 @@ def pql(client, query, format):
             elif format == 'json':
                 print_pql_json(response)
 
-@papertrail.command()
+
+@papertrail.command(name="eval")
 @click.argument('code')
 @click.pass_obj
-def eval(client, code):
+def _eval(client, code):
     """Evaluates script on the server"""
 
     prefix = """
@@ -100,6 +105,7 @@ def eval(client, code):
 
     click.echo(client.execute(prefix + code))
 
+
 @papertrail.command()
 @click.argument('url', nargs=1)
 @click.argument('data', nargs=-1)
@@ -111,8 +117,9 @@ def form(client, url, data):
     Usage example:
     pt form execute/action key=value
     """
-    data = { pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data) }
+    data = {pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data)}
     client.post(url, data)
+
 
 @papertrail.command(name="service")
 @click.argument('action', type=click.Choice(['start', 'stop', 'restart', 'status']))
@@ -143,12 +150,14 @@ def _service(action):
         else:
             click.echo("PaperTrail not started")
 
+
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
 @click.pass_obj
 def execute(client, file):
     """Executes a script FILE on the server"""
     click.echo(client.execute(file.read()))
+
 
 @papertrail.command()
 @click.argument('path')
@@ -161,6 +170,7 @@ def upload(client, path, file):
     E.g. upload System/scripts/TEST.groovy build/libTest.groovy
     """
     client.update_document(path, file)
+
 
 @papertrail.command()
 @click.argument('path')
@@ -177,6 +187,7 @@ def download(client, path, dest_file):
 
         with open(dest_file, 'w') as f:
             f.write(response.text)
+
 
 @papertrail.command()
 @click.argument('script')
@@ -195,6 +206,7 @@ def download_script(client, script, dest_file):
         with open(dest_file, 'w') as f:
             f.write(response.text)
 
+
 @papertrail.command()
 @click.argument('node')
 @click.argument('file', type=click.File('rb'))
@@ -203,6 +215,7 @@ def update_doc(client, node, file):
     """Updates a document located at NODE/FILE from a local FILE."""
     client.update_document('{}/{}'.format(node, basename(file.name)), file)
 
+
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
 @click.pass_obj
@@ -210,12 +223,14 @@ def update_script(client, file):
     """Uploads and updates the script document from a provided FILE"""
     client.upload_script(basename(file.name), file)
 
+
 @papertrail.command()
 @click.argument('url')
 @click.pass_obj
 def new_token(client, url):
     """Generates and outputs a new token for a provided URL"""
     click.echo(client.new_token(url))
+
 
 @papertrail.command()
 @click.argument('form_name')
@@ -225,6 +240,7 @@ def new_form(client, form_name):
     doc_id = client.new_form(form_name)['docId']
     token = client.new_token('/web/eSign')
     webbrowser.open('{}?{}'.format(token, doc_id))
+
 
 @papertrail.command()
 @click.argument('form_name')
