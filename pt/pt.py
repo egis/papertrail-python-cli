@@ -252,6 +252,27 @@ def new_classic(client, form_name):
     webbrowser.open('{}?{}'.format(token, doc_id))
 
 
+@papertrail.command()
+@click.argument('entity')
+@click.argument('id', required=False)
+@click.pass_obj
+def export(client, entity, id):
+    """Exports an ENTITY or a list of entities if no ID is provided."""
+    response = client.export_entity(entity, id)
+    if response is not None:
+        print(response)
+
+
+@papertrail.command(name='import')
+@click.argument('file', type=click.File('rt'))
+@click.pass_obj
+def _import(client, file):
+    """Imports an entity from a provided FILE."""
+    response = client.import_entities(file.read())
+    if response is not None:
+        print(response)
+
+
 commands.init_plugins(papertrail)
 
 if __name__ == '__main__':

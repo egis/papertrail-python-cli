@@ -136,7 +136,23 @@ class Client:
 
     def redeploy_workflow(self):
         return self.post('workflow/redeploy', {},
-                         headers={ 'Content-Type': 'application/octet-stream' })
+                         headers={'Content-Type': 'application/octet-stream'})
+
+    def export_entity(self, entity, id=None):
+        if id is not None:
+            params = {'id': id}
+        else:
+            params = {}
+
+        response = self.get('dao/export/yml/%s' % entity, params)
+        if response and response.status_code == 200:
+            return response.text
+
+    def import_entities(self, body):
+        response = self.post('dao/import/yml', body,
+                             headers={'Content-Type': 'text/yaml', 'Accept': '*'})
+        if response and response.status_code == 200:
+            return response.text
 
     def execute(self, script):
         result = self.post('script/execute', {'code': script})
