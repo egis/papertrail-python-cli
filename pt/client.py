@@ -175,15 +175,6 @@ class Client:
             if not " INFO " in line:
                 print line
 
-    def stop(self):
-        self.papertrail("stop")
-
-    def start(self):
-        self.papertrail("start")
-
-    def restart(self):
-        self.papertrail("restart")
-
     def reset_password(self, newPassword):
         self.post("action/execute/change_password", {
             "oldPassword": self.password,
