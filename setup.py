@@ -8,12 +8,16 @@ setup(
     install_requires=[
         'Click',
         'requests',
-        'progressbar2'
+        'progressbar2',
+        'sh',
+        'termcolor',
+        'colorama',
+        'watchdog'
     ],
     author='Egis Software',
     url='http://papertrail.co.za',
     description='Papertrail Command Line Utils',
-    packages=['pt'],
+    packages=['pt', 'pt.commands'],
     entry_points='''
     [console_scripts]
     pt=pt.pt:papertrail
