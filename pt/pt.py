@@ -9,7 +9,9 @@ import click
 from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
-import version as ver
+import commands
+from utils import bgcolors
+
 
 @click.group()
 @click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
@@ -21,6 +23,7 @@ def papertrail(ctx, host, username, password):
         host = 'http://' + host
     ctx.obj = Client(host, username, password)
 
+
 @papertrail.command()
 @click.argument('file', type=click.File('rb'))
 @click.pass_obj
@@ -28,16 +31,18 @@ def deploy(client, file):
     """Deploys a package from a local FILE"""
     client.deploy_package(basename(file.name), file)
 
+
 @papertrail.command()
 @click.pass_obj
 def redeploy(client):
     """Redeploys workflows"""
     client.redeploy_workflow()
 
+
 @papertrail.command()
 @click.argument('query', required=False)
 @click.option('--format', default='user', type=click.Choice(['user', 'csv', 'json', 'column']),
-            help='Data output format')
+              help='Data output format')
 @click.pass_obj
 def pql(client, query, format):
     """
@@ -80,10 +85,11 @@ def pql(client, query, format):
             elif format == 'json':
                 print_pql_json(response)
 
-@papertrail.command()
+
+@papertrail.command(name="eval")
 @click.argument('code')
 @click.pass_obj
-def eval(client, code):
+def _eval(client, code):
     """Evaluates script on the server"""
 
     prefix = """
@@ -100,6 +106,7 @@ def eval(client, code):
 
     click.echo(client.execute(prefix + code))
 
+
 @papertrail.command()
 @click.argument('url', nargs=1)
 @click.argument('data', nargs=-1)
@@ -111,42 +118,9 @@ def form(client, url, data):
     Usage example:
     pt form execute/action key=value
     """
-    data = { pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data) }
+    data = {pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data)}
     client.post(url, data)
 
-@papertrail.command()
-@click.argument('version', required=False)
-@click.option('--norestart', is_flag=True, help="Turn off auto restart of a Papertrail instance after the update")
-@click.option('--output', '-o', default='/opt/Papertrail.sh', help="Destination file for the upgrade package")
-def upgrade(version, norestart, output):
-    """
-    Upgrades a local Papertrail installation to the latest available version.
-
-    Special version identifiers are: stable, nightly, stable-nightly.
-    Default version is "stable".
-    """
-    if version in [None, ver.STABLE, ver.NIGHTLY, ver.STABLE_NIGHTLY]:
-        build = ver.get_build(version)
-    else:
-        build = version
-
-    # Check if the local instance needs to be upgraded
-    if build == ver.get_local_version():
-        click.echo('You are running the latest version of Papertrail (%s).' % (build))
-        return
-
-    # Download the build
-    click.echo('Downloading version %s' % (build))
-    ver.download(build, output)
-
-    # Unpack and install the downloaded package
-    click.echo('Upgrading')
-    service.upgrade(output)
-
-    ver.store_local_version(build)
-
-    if not norestart:
-        service.start()
 
 @papertrail.command(name="service")
 @click.argument('action', type=click.Choice(['start', 'stop', 'restart', 'status']))
@@ -177,12 +151,14 @@ def _service(action):
         else:
             click.echo("PaperTrail not started")
 
+
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
 @click.pass_obj
 def execute(client, file):
     """Executes a script FILE on the server"""
     click.echo(client.execute(file.read()))
+
 
 @papertrail.command()
 @click.argument('path')
@@ -195,6 +171,7 @@ def upload(client, path, file):
     E.g. upload System/scripts/TEST.groovy build/libTest.groovy
     """
     client.update_document(path, file)
+
 
 @papertrail.command()
 @click.argument('path')
@@ -211,6 +188,7 @@ def download(client, path, dest_file):
 
         with open(dest_file, 'w') as f:
             f.write(response.text)
+
 
 @papertrail.command()
 @click.argument('script')
@@ -229,6 +207,7 @@ def download_script(client, script, dest_file):
         with open(dest_file, 'w') as f:
             f.write(response.text)
 
+
 @papertrail.command()
 @click.argument('node')
 @click.argument('file', type=click.File('rb'))
@@ -237,6 +216,7 @@ def update_doc(client, node, file):
     """Updates a document located at NODE/FILE from a local FILE."""
     client.update_document('{}/{}'.format(node, basename(file.name)), file)
 
+
 @papertrail.command()
 @click.argument('file', type=click.File('rt'))
 @click.pass_obj
@@ -244,12 +224,14 @@ def update_script(client, file):
     """Uploads and updates the script document from a provided FILE"""
     client.upload_script(basename(file.name), file)
 
+
 @papertrail.command()
 @click.argument('url')
 @click.pass_obj
 def new_token(client, url):
     """Generates and outputs a new token for a provided URL"""
     click.echo(client.new_token(url))
+
 
 @papertrail.command()
 @click.argument('form_name')
@@ -260,6 +242,7 @@ def new_form(client, form_name):
     token = client.new_token('/web/eSign')
     webbrowser.open('{}?{}'.format(token, doc_id))
 
+
 @papertrail.command()
 @click.argument('form_name')
 @click.pass_obj
@@ -268,6 +251,57 @@ def new_classic(client, form_name):
     doc_id = client.new_form(form_name)['docId']
     token = client.new_token('/jsForm/edit/')
     webbrowser.open('{}?{}'.format(token, doc_id))
+
+
+@papertrail.command()
+@click.option('--count-only', is_flag=True, default=False)
+@click.option('--since', required=False)
+@click.pass_obj
+def sessions(client, count_only, since):
+    """Lists currently active sessions on the server."""
+    sessions = client.sessions()
+
+    if count_only:
+        print(sessions['totalCount'])
+        return
+
+    print("%s %s (%s) %s" % (bgcolors.OKBLUE, client.host, sessions['totalCount'], bgcolors.ENDC))
+
+    for item in sessions["items"]:
+        if "lastAccessTime" not in item:
+            continue
+        if "Administrator" == item['user'] and '41.160.64.194' == item['host']:
+            continue
+        if "userAgent" not in item:
+            item["userAgent"] = ""
+        print("%s (%s - %s) - %s/%s" % (
+            item['user'], item["startDate"], item['lastAccessTime'], item["host"], item["userAgent"]))
+        # print "{:30s} {:20s} ({:30s}) {:10s}".format(item['user'],
+        # item['startDate'], item['lastAccessTime'], item['userAgent'])
+
+
+@papertrail.command()
+@click.argument('entity')
+@click.argument('id', required=False)
+@click.pass_obj
+def export(client, entity, id):
+    """Exports an ENTITY or a list of entities if no ID is provided."""
+    response = client.export_entity(entity, id)
+    if response is not None:
+        print(response)
+
+
+@papertrail.command(name='import')
+@click.argument('file', type=click.File('rt'))
+@click.pass_obj
+def _import(client, file):
+    """Imports an entity from a provided FILE."""
+    response = client.import_entities(file.read())
+    if response is not None:
+        print(response)
+
+
+commands.init_plugins(papertrail)
 
 if __name__ == '__main__':
     papertrail()

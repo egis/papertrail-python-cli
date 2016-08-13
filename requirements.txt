@@ -1,6 +1,13 @@
+argh==0.26.2
 click==6.6
+colorama==0.3.7
+pathtools==0.1.2
 progressbar2==3.10.0
--e git+git@github.com:egis/papertrail-python-cli.git@7ae5050389f156353dc21a27a0dca75a19f0242d#egg=pt
+-e git+git@github.com:egis/papertrail-python-cli.git@9704f346e8d08f8b2d1c997eb26b03ebe6d8df72#egg=pt
 python-utils==2.0.0
+PyYAML==3.11
 requests==2.10.0
+sh==1.11
 six==1.10.0
+termcolor==1.1.0
+watchdog==0.8.3
