@@ -109,7 +109,7 @@ def uninstall():
 def install(package):
     """Installs a new local Papertrail instance from the provided package (exe/sh)"""
     if PLATFORM == "nt":
-        subprocess.Popen([package]).communicate()
+        subprocess.Popen([package, "-q"]).communicate()
     else:
         subprocess.Popen(["sh", package, "-q"], stdout=subprocess.PIPE).communicate()
 
