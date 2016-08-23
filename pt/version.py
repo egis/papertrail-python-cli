@@ -16,7 +16,7 @@ NIGHTLY = "nightly"
 STABLE_NIGHTLY = "stable_nightly"
 
 LOCAL_VERSION_PATH = "/opt/latestBuildNo" if os.name == "posix" else "%s\\latestBuildNo" % (os.getenv('APPDATA'))
-INSTALLER_EXTENSIONS = "sh" if os.name == "posix" else "exe"
+INSTALLER_EXTENSION = "sh" if os.name == "posix" else "exe"
 
 def get_local_version():
     """Returns a version of the local Papertrail instance, if it's installed"""
