@@ -5,6 +5,7 @@ import webbrowser
 from os.path import basename
 
 import click
+import colorama
 
 from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
@@ -261,6 +262,9 @@ def sessions(client, count_only, since):
     """Lists currently active sessions on the server."""
     sessions = client.sessions()
 
+    if sessions is None:
+        return
+
     if count_only:
         print(sessions['totalCount'])
         return
@@ -301,6 +305,7 @@ def _import(client, file):
         print(response)
 
 
+colorama.init()
 commands.init_plugins(papertrail)
 
 if __name__ == '__main__':

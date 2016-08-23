@@ -16,7 +16,6 @@ import click
 import sh
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import colorama
 from termcolor import colored, cprint
 
 
@@ -138,7 +137,6 @@ class PaperTrail(Builder):
 @click.option('--watch', '-w', is_flag=True, default=False)
 @click.argument('dirs', nargs=-1, required=False)
 def run(watch, dirs):
-    colorama.init()
     observer = Observer()
 
     if not dirs:
