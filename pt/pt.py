@@ -146,9 +146,9 @@ def _service(action):
         service.stop()
         service.start()
     elif action == 'status':
-        pid = service.get_pid()
-        if pid is not None:
-            click.echo("PaperTrail started (%d)" % (pid))
+        status = service.get_status()
+        if status is not None:
+            click.echo("PaperTrail started (%d)" % (status))
         else:
             click.echo("PaperTrail not started")
 
