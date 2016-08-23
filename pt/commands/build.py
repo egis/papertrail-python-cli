@@ -23,17 +23,8 @@ npm = sh.Command("npm")
 pt = sh.Command("pt")
 npm_dev = npm.bake("run", "dev")
 
-if sys.platform == 'darwin':
-    # Display user notifications on macOS
-    notifier = sh.Command("terminal-notifier").bake("-message")
-
-    def notify(msg):
-        print(msg)
-        # args = "'display notification \"%s\" with title \"%s\"'" % (msg, "Builder")
-        # notifier(msg)
-else:
-    def notify(msg):
-        print(msg)
+def notify(msg):
+    print(msg)
 
 
 class Builder(FileSystemEventHandler):
