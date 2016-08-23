@@ -132,7 +132,7 @@ def _service(action):
     Use the PT_ROOT environment variable to override the default installation path.
     """
     if action == 'start':
-        if service.get_pid() is not None:
+        if service.get_status() is not None:
             click.echo("PaperTrail already started")
         else:
             if service.start():
