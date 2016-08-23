@@ -18,6 +18,7 @@ if os.name == 'posix':
     PID_FILE = "%s/pid" % PT_ROOT
 else:
     PLATFORM = "nt"
+    PT_ROOT = os.getenv("PT_ROOT", '%s\\Papertrail' % os.getenv('ProgramFiles'))
     SERVICE_EXE = "sc.exe" # service control program on Windows
     SERVICE_NAME = "Papertrail" # from service.exe4j
 
@@ -119,11 +120,11 @@ def start():
 
 def uninstall():
     """Uninstalls the local Papertrail instance"""
+    stop()
     if PLATFORM == "nt":
-        pass
+        subprocess.Popen("%s\\uninstall.exe" % PT_ROOT, "-q").communicate()
     else:
-        stop()
-        subprocess.Popen(["sh", "%s/uninstall" % (PT_ROOT), "-q"], stdout=subprocess.PIPE).communicate()
+        subprocess.Popen(["sh", "%s/uninstall" % PT_ROOT, "-q"], stdout=subprocess.PIPE).communicate()
 
 def install(package):
     """Installs a new local Papertrail instance from the provided package (exe/sh)"""
