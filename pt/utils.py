@@ -2,7 +2,7 @@ from subprocess import *
 import subprocess
 from socket import *
 import time
-import os
+import os, os.path
 import datetime as dt
 import threading
 import ssl
@@ -72,6 +72,20 @@ def ping(host, port):
     except Exception, e:
         s.close()
         return False
+
+
+def load_site_config(site):
+    path = None
+
+    for root, dirs, files in os.walk('.'):
+        if site in files:
+            path = os.path.join(root, site)
+
+    if path is None:
+        return None
+
+    env, error = subprocess.Popen(['/bin/bash', '-c', 'source %s && env -0' % path], stdout=subprocess.PIPE).communicate()
+    return {val[0]: val[1] for val in map(lambda line: line.split('=', 1), env.split('\0')) if len(val) == 2}
 
 
 def call_async(func, args):
