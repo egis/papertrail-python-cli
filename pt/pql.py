@@ -1,12 +1,12 @@
 import os, sys
 import atexit
-import readline
 import csv, json
 
 from utils import http_get
 
 def run_pql_repl(client):
-    setup_readline()
+    if os.name == 'posix':
+        setup_readline()
 
     while True:
         try :
@@ -52,6 +52,8 @@ def print_pql_response(data):
         print('---')
 
 def setup_readline():
+    import readline
+
     histfile = os.path.join(os.path.expanduser("~"), ".pql_history")
     try:
         readline.read_history_file(histfile)

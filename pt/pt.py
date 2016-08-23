@@ -5,6 +5,7 @@ import webbrowser
 from os.path import basename
 
 import click
+import colorama
 
 from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
@@ -14,8 +15,8 @@ from utils import bgcolors
 
 
 @click.group()
-@click.option('--username', default='admin', envvar='PT_USER', help='or use the PT_USER environment variable')
-@click.option('--password', default='p', envvar='PT_PASS', help='or use the PT_PASS environment variable')
+@click.option('--username', default='admin', envvar=['PT_USER', 'PT_API_USER'], help='or use the PT_USER/PT_API_USER environment variable')
+@click.option('--password', default='p', envvar=['PT_PASS', 'PT_API_PASS'], help='or use the PT_PASS/PT_API_PASS environment variable')
 @click.option('--host', default='http://localhost:8080', envvar='PT_API', help='or use the PT_API environment variable')
 @click.pass_context
 def papertrail(ctx, host, username, password):
@@ -131,7 +132,7 @@ def _service(action):
     Use the PT_ROOT environment variable to override the default installation path.
     """
     if action == 'start':
-        if service.get_pid() is not None:
+        if service.get_status() is not None:
             click.echo("PaperTrail already started")
         else:
             if service.start():
@@ -145,9 +146,9 @@ def _service(action):
         service.stop()
         service.start()
     elif action == 'status':
-        pid = service.get_pid()
-        if pid is not None:
-            click.echo("PaperTrail started (%d)" % (pid))
+        status = service.get_status()
+        if status is not None:
+            click.echo("PaperTrail started (%s)" % str(status))
         else:
             click.echo("PaperTrail not started")
 
@@ -261,6 +262,9 @@ def sessions(client, count_only, since):
     """Lists currently active sessions on the server."""
     sessions = client.sessions()
 
+    if sessions is None:
+        return
+
     if count_only:
         print(sessions['totalCount'])
         return
@@ -301,6 +305,7 @@ def _import(client, file):
         print(response)
 
 
+colorama.init()
 commands.init_plugins(papertrail)
 
 if __name__ == '__main__':

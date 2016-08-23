@@ -3,6 +3,7 @@ Papertrail service management functions.
 Unifies Linux & Windows services control.
 """
 
+import re
 import os
 import sys
 import subprocess
@@ -17,8 +18,27 @@ if os.name == 'posix':
     PID_FILE = "%s/pid" % PT_ROOT
 else:
     PLATFORM = "nt"
+    PT_ROOT = os.getenv("PT_ROOT", '%s\\Papertrail' % os.getenv('ProgramFiles'))
     SERVICE_EXE = "sc.exe" # service control program on Windows
     SERVICE_NAME = "Papertrail" # from service.exe4j
+
+def get_status():
+    """
+    Returns None if the service is not running and the service status depending on
+    the platform (PID on POSIX and service status on Windows)
+    """
+    if PLATFORM == 'nt':
+        query, err = subprocess.Popen([SERVICE_EXE, "query", SERVICE_NAME], stdout=subprocess.PIPE).communicate()
+
+        state_regexp = re.compile(ur'^\s+STATE\s*:\s*(?P<num_code>\d+)\s+(?P<state>\w+)', re.MULTILINE)
+        state = re.search(state_regexp, query)
+
+        if state.group('state') == 'STOPPED':
+            return None
+        else:
+            return '%s [%s]' % (state.group('state'), state.group('num_code'))
+    else:
+        return get_pid()
 
 def get_pid():
     """Returns a PID of the currently running service or None if there's none."""
@@ -36,7 +56,7 @@ def get_pid():
 def stop():
     """Stop the running service."""
     if PLATFORM == "nt":
-        return subprocess.call([SERVICE_EXE, "stop", SERVICE_NAME], shell=True)
+        return subprocess.call([SERVICE_EXE, "stop", SERVICE_NAME])
     else:
         pid = get_pid()
 
@@ -67,7 +87,7 @@ def stop():
 def start():
     """Starts a local Papertrail service."""
     if PLATFORM == "nt":
-        return subprocess.call([SERVICE_EXE, "start", SERVICE_NAME], shell=True)
+        return subprocess.call([SERVICE_EXE, "start", SERVICE_NAME])
     else:
         if exists(PID_FILE):
             os.remove(PID_FILE)
@@ -100,18 +120,22 @@ def start():
 
 def uninstall():
     """Uninstalls the local Papertrail instance"""
+    stop()
     if PLATFORM == "nt":
-        pass
+        uninstaller = "%s\\uninstall.exe" % PT_ROOT
+        if exists(uninstaller):
+            subprocess.Popen([uninstaller, "-q"], stdout=subprocess.PIPE).communicate()
     else:
-        stop()
-        subprocess.Popen(["sh", "%s/uninstall" % (PT_ROOT), "-q"], stdout=subprocess.PIPE).communicate()
+        uninstaller = "%s/uninstall" % PT_ROOT
+        if exists(uninstaller):
+            subprocess.Popen(["sh", uninstaller, "-q"], stdout=subprocess.PIPE).communicate()
 
 def install(package):
     """Installs a new local Papertrail instance from the provided package (exe/sh)"""
     if PLATFORM == "nt":
-        subprocess.Popen(["./Papertrail.exe"]).communicate()
+        subprocess.Popen([package, "-q"]).communicate()
     else:
-        subprocess.Popen(["sh", "/opt/Papertrail.sh", "-q"], stdout=subprocess.PIPE).communicate()
+        subprocess.Popen(["sh", package, "-q"], stdout=subprocess.PIPE).communicate()
 
 def upgrade(package):
     """Upgrades the local Papertrail instance using the provided package (exe/sh)"""

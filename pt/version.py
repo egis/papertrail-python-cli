@@ -3,9 +3,11 @@ Gets version information from the Papertrail S3 bucket and
 handles downloads of upgrade packages.
 """
 
+import os
+from os.path import exists
+
 import requests
 import progressbar
-from os.path import exists
 
 S3_BUCKET = "https://s3.amazonaws.com/papertrail"
 
@@ -13,7 +15,8 @@ STABLE = "stable"
 NIGHTLY = "nightly"
 STABLE_NIGHTLY = "stable_nightly"
 
-LOCAL_VERSION_PATH = "/opt/latestBuildNo"
+LOCAL_VERSION_PATH = "/opt/latestBuildNo" if os.name == "posix" else "%s\\latestBuildNo" % (os.getenv('APPDATA'))
+INSTALLER_EXTENSION = "sh" if os.name == "posix" else "exe"
 
 def get_local_version():
     """Returns a version of the local Papertrail instance, if it's installed"""
@@ -25,7 +28,7 @@ def store_local_version(build):
     with open(LOCAL_VERSION_PATH, 'w') as f:
         f.write(build)
 
-def download(build, output, extension = "sh"):
+def download(build, output, extension = INSTALLER_EXTENSION):
     """Downloads a specific version of the Papertrail installation package."""
     url = (S3_BUCKET + "/public/nightly/build/Papertrail_%s.%s") % (build, extension)
     print(url)

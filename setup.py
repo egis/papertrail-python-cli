@@ -1,19 +1,24 @@
 #!/usr/bin/env python
 
+import os
 from setuptools import setup
+
+requirements=[
+    'Click',
+    'requests',
+    'progressbar2',
+    'termcolor',
+    'colorama',
+    'watchdog'
+]
+
+if os.name == 'posix':
+    requirements.append('sh')
 
 setup(
     name='pt',
-    version='0.3.0',
-    install_requires=[
-        'Click',
-        'requests',
-        'progressbar2',
-        'sh',
-        'termcolor',
-        'colorama',
-        'watchdog'
-    ],
+    version='0.3.2',
+    install_requires=requirements,
     author='Egis Software',
     url='http://papertrail.co.za',
     description='Papertrail Command Line Utils',

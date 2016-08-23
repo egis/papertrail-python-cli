@@ -8,11 +8,14 @@ import os.path
 import datetime
 import time
 
+if os.name == 'nt':
+    # Build command is nnot supported on Windows
+    raise Exception('Warning: build command is not supported on Windows')
+
 import click
 import sh
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import colorama
 from termcolor import colored, cprint
 
 
@@ -23,17 +26,8 @@ npm = sh.Command("npm")
 pt = sh.Command("pt")
 npm_dev = npm.bake("run", "dev")
 
-if sys.platform == 'darwin':
-    # Display user notifications on macOS
-    notifier = sh.Command("terminal-notifier").bake("-message")
-
-    def notify(msg):
-        print(msg)
-        # args = "'display notification \"%s\" with title \"%s\"'" % (msg, "Builder")
-        # notifier(msg)
-else:
-    def notify(msg):
-        print(msg)
+def notify(msg):
+    print(msg)
 
 
 class Builder(FileSystemEventHandler):
@@ -143,7 +137,6 @@ class PaperTrail(Builder):
 @click.option('--watch', '-w', is_flag=True, default=False)
 @click.argument('dirs', nargs=-1, required=False)
 def run(watch, dirs):
-    colorama.init()
     observer = Observer()
 
     if not dirs:
