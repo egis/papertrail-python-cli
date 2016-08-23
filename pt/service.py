@@ -122,9 +122,13 @@ def uninstall():
     """Uninstalls the local Papertrail instance"""
     stop()
     if PLATFORM == "nt":
-        subprocess.Popen(["%s\\uninstall.exe" % PT_ROOT, "-q"]).communicate()
+        uninstaller = "%s\\uninstall.exe" % PT_ROOT
+        if exists(uninstaller):
+            subprocess.Popen([uninstaller, "-q"], stdout=subprocess.PIPE).communicate()
     else:
-        subprocess.Popen(["sh", "%s/uninstall" % PT_ROOT, "-q"], stdout=subprocess.PIPE).communicate()
+        uninstaller = "%s/uninstall" % PT_ROOT
+        if exists(uninstaller):
+            subprocess.Popen(["sh", uninstaller, "-q"], stdout=subprocess.PIPE).communicate()
 
 def install(package):
     """Installs a new local Papertrail instance from the provided package (exe/sh)"""
