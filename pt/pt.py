@@ -148,7 +148,7 @@ def _service(action):
     elif action == 'status':
         status = service.get_status()
         if status is not None:
-            click.echo("PaperTrail started (%d)" % (status))
+            click.echo("PaperTrail started (%s)" % str(status))
         else:
             click.echo("PaperTrail not started")
 
