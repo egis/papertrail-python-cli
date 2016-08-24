@@ -22,7 +22,7 @@ class Client:
 
     def pql_query(self, query):
         response = self.get('document/pql', { 'query': query, 'includeMetadata': True })
-        if response is not None and response.status_code == 200:
+        if response and response.status_code == 200:
             return response.json()
 
     def db_backup(self):
@@ -151,7 +151,7 @@ class Client:
 
     def execute(self, script):
         result = self.post('script/execute', {'code': script})
-        if result.status_code == 200:
+        if result and result.status_code == 200:
             result = result.text
 
             if 'result =' in result:
