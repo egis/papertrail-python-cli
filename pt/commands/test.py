@@ -14,7 +14,7 @@ from watchdog.events import PatternMatchingEventHandler
 
 MAIN_METHOD = """
     public static void main(String[] args) {
-        new TestRunner(%s.class).run();
+        new com.egis.test.TestRunner(%s.class).run();
     }
 """
 
@@ -69,11 +69,9 @@ class Tester(PatternMatchingEventHandler):
 
         self.client = client
         self.files = files
-        print(paths)
 
         if observer:
             dirs = set(map(os.path.dirname, paths))
-            print(dirs)
             for d in dirs:
                 observer.schedule(self, d)
 
