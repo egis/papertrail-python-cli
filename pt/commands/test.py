@@ -1,7 +1,3 @@
-"""
-Runs a provided Groovy script as an integration test.
-"""
-
 import re
 import os.path
 import time
@@ -94,10 +90,14 @@ class Tester(PatternMatchingEventHandler):
         print(self.client.execute(script) + '\n')
 
 
+@click.command('test')
 @click.argument('files', type=click.File('rt'), nargs=-1)
 @click.option('--watch', '-w', is_flag=True, default=False)
 @click.pass_obj
 def run(client, files, watch):
+    """
+    Runs a provided Groovy script as an integration test.
+    """
     if not watch:
         Tester(client, files, None).run()
     else:

@@ -1,10 +1,3 @@
-"""
-Upgrades a local Papertrail installation to the latest available version.
-
-Special version identifiers are: stable, nightly, stable-nightly.
-Default version is "stable".
-"""
-
 import os
 
 import click
@@ -16,10 +9,17 @@ import pt.service as service
 INSTALLER_OUTPUT = '/opt/Papertrail.sh' if os.name == 'posix' else os.getenv('APPDATA') + '\\Papertrail.exe'
 
 
+@click.command('upgrade')
 @click.argument('version', required=False)
 @click.option('--norestart', is_flag=True, help="Turn off auto restart of a Papertrail instance after the update")
 @click.option('--output', '-o', default=INSTALLER_OUTPUT, help="Destination file for the upgrade package")
 def run(version, norestart, output):
+    """
+    Upgrades a local Papertrail installation to the latest available version.
+
+    Special version identifiers are: stable, nightly, stable-nightly.
+    Default version is "stable".
+    """
     if version in [None, ver.STABLE, ver.NIGHTLY, ver.STABLE_NIGHTLY]:
         build = ver.get_build(version)
     else:
