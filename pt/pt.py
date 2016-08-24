@@ -2,6 +2,8 @@
 
 import sys
 import webbrowser
+import os
+import os.path
 from os.path import basename
 
 import click
@@ -11,17 +13,34 @@ from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import commands
-from utils import bgcolors
+from utils import bgcolors, load_site_config
 
 
 @click.group()
+@click.option('--site', required=False, envvar='PT_SITE', help='Name of the file with site credentials')
 @click.option('--username', default='admin', envvar=['PT_USER', 'PT_API_USER'], help='or use the PT_USER/PT_API_USER environment variable')
 @click.option('--password', default='p', envvar=['PT_PASS', 'PT_API_PASS'], help='or use the PT_PASS/PT_API_PASS environment variable')
 @click.option('--host', default='http://localhost:8080', envvar='PT_API', help='or use the PT_API environment variable')
 @click.pass_context
-def papertrail(ctx, host, username, password):
+def papertrail(ctx, host, username, password, site):
+    if site is not None:
+        if os.name == 'nt':
+            raise Exception('--site is not supported on Windows')
+
+        env = load_site_config(site)
+
+        if env is None:
+            raise click.BadParameter('site config "%s" not found' % site)
+
+        host = env.get('PT_API', host)
+        username = env.get('PT_API_USER', username)
+        username = env.get('PT_USER', username)
+        password = env.get('PT_API_PASS', password)
+        password = env.get('PT_PASS', password)
+
     if not host.startswith('http://') and not host.startswith('https://'):
         host = 'http://' + host
+
     ctx.obj = Client(host, username, password)
 
 

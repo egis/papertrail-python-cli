@@ -23,7 +23,6 @@ quick = True
 gradle = sh.Command("gradle")
 ant = sh.Command("ant")
 npm = sh.Command("npm")
-pt = sh.Command("pt")
 npm_dev = npm.bake("run", "dev")
 
 def notify(msg):
@@ -116,12 +115,13 @@ class Ant(Java):
 
 
 class PaperTrail(Builder):
-    def __init__(self, path, observer, watch):
+    def __init__(self, client, path, observer, watch):
         super(PaperTrail, self).__init__(path, observer, watch)
-        self.update_script = pt.bake("update_script")
+        self.client = client
 
     def build(self, path):
-        self.update_script(path, _out=self.out, _err=self.out)
+        with open(path, 'rt') as script:
+            self.client.upload_script(path, script.read())
 
     def watch(self):
         if os.path.isdir(self.path + "/System/scripts"):
@@ -136,7 +136,8 @@ class PaperTrail(Builder):
 
 @click.option('--watch', '-w', is_flag=True, default=False)
 @click.argument('dirs', nargs=-1, required=False)
-def run(watch, dirs):
+@click.pass_obj
+def run(client, watch, dirs):
     observer = Observer()
 
     if not dirs:
@@ -150,7 +151,7 @@ def run(watch, dirs):
 
         for p in ["/resources", "/configs"]:
             if os.path.isdir(path + p):
-                builder = PaperTrail(path + p, observer, watch)
+                builder = PaperTrail(client, path + p, observer, watch)
 
         if os.path.isfile(path + "/package.json"):
             builder = Gulp(path, observer, watch)
