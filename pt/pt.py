@@ -131,15 +131,37 @@ def _eval(client, code):
 @click.argument('url', nargs=1)
 @click.argument('data', nargs=-1)
 @click.pass_obj
-def form(client, url, data):
+def get(client, url, data):
     """
-    Makes a generic POST form request to a provided URL, optionally passing a DATA set in the 'key=value' format.
+    Performs a generic GET request to a provided URL, optionally passing a DATA set in the 'key=value' format.
 
     Usage example:
-    pt form execute/action key=value
+    pt get dao/listFull/Group limit=1
     """
-    data = {pair[0]: pair[1] for pair in map(lambda pair: pair.split('='), data)}
-    client.post(url, data)
+    data = {pair[0]: pair[1] for pair in map(lambda pair: pair.split('=', 1), data)}
+    response = client.get(url, data)
+
+    if response and (response.status_code >= 200 and response.status_code < 300):
+        print(response.text)
+
+
+@papertrail.command()
+@click.argument('url', nargs=1)
+@click.argument('data', nargs=-1)
+@click.pass_obj
+def post(client, url, data):
+    """
+    Performs a generic POST request to a provided URL, optionally passing a DATA set in the 'key=value' format.
+    Data is encoded as application/x-www-form-urlencoded.
+
+    Usage example:
+    pt post execute/action key=value
+    """
+    data = {pair[0]: pair[1] for pair in map(lambda pair: pair.split('=', 1), data)}
+    response = client.post(url, data)
+
+    if response and (response.status_code >= 200 and response.status_code < 300):
+        print(response.text)
 
 
 @papertrail.command(name="service")

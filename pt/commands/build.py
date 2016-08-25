@@ -134,10 +134,16 @@ class PaperTrail(Builder):
                 self.cmd(p, _cwd=self.cwd)
 
 
+@click.command('build')
 @click.option('--watch', '-w', is_flag=True, default=False)
 @click.argument('dirs', nargs=-1, required=False)
 @click.pass_obj
 def run(client, watch, dirs):
+    """
+    Provides development tools.
+
+    Watches the source code directory for changes and automatically rebuilds the project.
+    """
     observer = Observer()
 
     if not dirs:
