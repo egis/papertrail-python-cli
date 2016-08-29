@@ -212,7 +212,7 @@ def upload(client, path, file):
 
     E.g. upload System/scripts/TEST.groovy build/libTest.groovy
     """
-    client.update_document(path, file)
+    click.echo(client.update_document(path, file).text)
 
 
 @papertrail.command()
@@ -256,7 +256,7 @@ def download_script(client, script, dest_file):
 @click.pass_obj
 def update_doc(client, node, file):
     """Updates a document located at NODE/FILE from a local FILE."""
-    client.update_document('{}/{}'.format(node, basename(file.name)), file)
+    click.echo(client.update_document('{}/{}'.format(node, basename(file.name)), file).text)
 
 
 @papertrail.command()
@@ -266,33 +266,53 @@ def update_script(client, file):
     """Uploads and updates the script document from a provided FILE"""
     client.upload_script(basename(file.name), file)
 
+@papertrail.command()
+@click.argument('docid')
+@click.option('--history', required=False, is_flag=True)
+@click.pass_obj
+def info(client,docid, history):
+    """prints the document details"""
+    if history:
+        click.echo(client.get('document/history/' + docid).text)
+    else:
+        click.echo(client.get('document/details/' + docid).text)
 
 @papertrail.command()
 @click.argument('url')
+@click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
 @click.pass_obj
-def new_token(client, url):
+def new_token(client, url, **kwargs):
     """Generates and outputs a new token for a provided URL"""
-    click.echo(client.new_token(url))
+    token=client.new_token(url)
+    click.echo(token)
+    if kwargs['open']:
+        webbrowser.open(token);
 
 
 @papertrail.command()
 @click.argument('form_name')
+@click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
 @click.pass_obj
-def new_form(client, form_name):
+def new_form(client, form_name, **kwargs):
     """Creates a new form from a provided FORM_NAME"""
     doc_id = client.new_form(form_name)['docId']
     token = client.new_token('/web/eSign')
-    webbrowser.open('{}?{}'.format(token, doc_id))
+    click.echo(doc_id)
+    if kwargs['open']:
+       webbrowser.open('{}?{}'.format(token, doc_id))
 
 
 @papertrail.command()
 @click.argument('form_name')
+@click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
 @click.pass_obj
-def new_classic(client, form_name):
+def new_classic(client, form_name, **kwargs):
     """Creates a new form from a provided FORM_NAME, using the classic UI"""
     doc_id = client.new_form(form_name)['docId']
+    click.echo(doc_id)
     token = client.new_token('/jsForm/edit/')
-    webbrowser.open('{}?{}'.format(token, doc_id))
+    if kwargs['open']:
+       webbrowser.open('{}?{}'.format(token, doc_id))
 
 
 @papertrail.command()
