@@ -2,6 +2,7 @@
 
 import sys
 import webbrowser
+import json
 import os
 import os.path
 from os.path import basename
@@ -289,11 +290,18 @@ def new_token(client, url, **kwargs):
         webbrowser.open(token);
 
 
-@papertrail.command()
+@click.group()
+def form():
+    pass
+
+
+papertrail.add_command(form)
+
+@form.command()
 @click.argument('form_name')
 @click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
 @click.pass_obj
-def new_form(client, form_name, **kwargs):
+def new(client, form_name, **kwargs):
     """Creates a new form from a provided FORM_NAME"""
     doc_id = client.new_form(form_name)['docId']
     token = client.new_token('/web/eSign')
@@ -302,7 +310,26 @@ def new_form(client, form_name, **kwargs):
        webbrowser.open('{}?{}'.format(token, doc_id))
 
 
-@papertrail.command()
+
+@form.command(name="export")
+@click.argument('docid')
+@click.pass_obj
+def form_export(client, docid):
+    """Creates a new form from a provided FORM_NAME"""
+    click.echo(client.get('public/file/%s/saved.json?path=saved.json' % docid).text)
+
+
+
+
+@form.command(name="list")
+@click.pass_obj
+def form_list(client):
+    """Creates a new form from a provided FORM_NAME"""
+    for form in json.loads(str(client.get('dao/list/Form').text)):
+        click.echo(form)
+
+
+@form.command()
 @click.argument('form_name')
 @click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
 @click.pass_obj
