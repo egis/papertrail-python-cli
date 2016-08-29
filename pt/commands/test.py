@@ -10,7 +10,7 @@ from watchdog.events import PatternMatchingEventHandler
 
 MAIN_METHOD = """
     public static void main(String[] args) {
-        new com.egis.test.TestRunner(%s.class).run();
+        new com.egis.test.TestRunner(%s.class).run(%s);
     }
 """
 
@@ -25,7 +25,7 @@ def tokenize(source):
         if c != ' ' and c != '\n':
             word += c
 
-def add_main_method(class_name, script_source):
+def add_main_method(class_name, test_name, script_source):
     # Check if the main method already exists
     main = re.compile(r'(?:static\s+public|public\s+static)\s+void\s+main', re.IGNORECASE | re.MULTILINE)
     has_main = re.search(main, script_source)
@@ -54,17 +54,24 @@ def add_main_method(class_name, script_source):
                 last_index = i - 1
                 state = 'scan'
 
-    new_source = script_source[:last_index] + (MAIN_METHOD % class_name) + script_source[last_index:]
+    src = MAIN_METHOD % (class_name, test_name)
+    new_source = script_source[:last_index] + src + script_source[last_index:]
     return new_source
 
 
 class Tester(PatternMatchingEventHandler):
-    def __init__(self, client, files, observer):
+    def __init__(self, client, files, observer, test_method):
         paths = set(map(lambda f: f.name, files))
         super(Tester, self).__init__(paths)
 
         self.client = client
         self.files = files
+        self.test_method = None
+
+        if test_method is not None:
+            self.test_method = '"%s"' % test_method
+        else: 
+            self.test_method = "null"
 
         if observer:
             dirs = set(map(os.path.dirname, paths))
@@ -85,7 +92,7 @@ class Tester(PatternMatchingEventHandler):
         cprint('Testing ' + test_name, 'cyan')
 
         script = file.read()
-        script = add_main_method(test_name, script)
+        script = add_main_method(test_name, self.test_method, script)
 
         print(self.client.execute(script) + '\n')
 
@@ -93,16 +100,17 @@ class Tester(PatternMatchingEventHandler):
 @click.command('test')
 @click.argument('files', type=click.File('rt'), nargs=-1)
 @click.option('--watch', '-w', is_flag=True, default=False)
+@click.option('--test', '-t', help="only execute these test methods")
 @click.pass_obj
-def run(client, files, watch):
+def run(client, files, watch, test):
     """
     Runs a provided Groovy script as an integration test.
     """
     if not watch:
-        Tester(client, files, None).run()
+        Tester(client, files, None, test).run()
     else:
         observer = Observer()
-        tester = Tester(client, files, observer)
+        tester = Tester(client, files, observer, test)
 
         observer.start()
         tester.run()

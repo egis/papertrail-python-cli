@@ -150,16 +150,15 @@ class Client:
             return response.text
 
     def execute(self, script):
-        result = self.post('script/execute', {'code': script})
-        if result and result.status_code == 200:
-            result = result.text
+        result = self.post('script/execute', {'code': script}, stream=True)
 
-            if 'result =' in result:
-                result = result.split("=")[1]
+        for line in result.iter_lines():
 
-            result = str(result).replace("\\n", "\n").strip()
-
-            return result
+            if 'result =' in line:
+                line = line.split("=")[1]
+            if result.status_code == 200:
+                print str(line).replace("\\n", "\n").strip()
+        return ""
 
     def sessions(self):
         try:

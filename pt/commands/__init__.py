@@ -17,8 +17,8 @@ def init_plugins(group):
 
                 if 'run' not in module.__dict__:
                     print('Plugin command "%s" doesn\'t provide a "run" method. Aborting.' % (module_name))
-                    sys.exit(-1)
-
-                group.add_command(module.run)
+                    # sys.exit(-1)
+                else:    
+                    group.add_command(module.run)
             except Exception, e:
                 cprint('[' + module_name + '] ' + str(e), 'yellow')
