@@ -13,18 +13,6 @@ MAIN_METHOD = """
         new com.egis.test.TestRunner(%s.class).run(%s);
     }
 """
-
-def tokenize(source):
-    word = ''
-
-    for i, c in enumerate(source):
-        if c in '{} \n().,;' and word:
-            yield (i, word)
-            word = ''
-
-        if c != ' ' and c != '\n':
-            word += c
-
 def add_main_method(class_name, test_name, script_source):
     # Check if the main method already exists
     main = re.compile(r'(?:static\s+public|public\s+static)\s+void\s+main', re.IGNORECASE | re.MULTILINE)
@@ -33,30 +21,8 @@ def add_main_method(class_name, test_name, script_source):
     if has_main:
         return script_source
 
-    # Find the position to insert the public method
-    state = 'scan'
-    last_index = 0
-    block_level = []
-
-    tokens_stream = tokenize(script_source)
-
-    for (i, t) in tokens_stream:
-        if t.lower() == 'class':
-            state = 'in_class'
-
-        if t == '{':
-            block_level.append('')
-
-        if t == '}':
-            block_level.pop()
-
-            if state == 'in_class' and not block_level:
-                last_index = i - 1
-                state = 'scan'
-
-    src = MAIN_METHOD % (class_name, test_name)
-    new_source = script_source[:last_index] + src + script_source[last_index:]
-    return new_source
+    i = script_source.rfind("}")
+    return script_source[0:i] + MAIN_METHOD % (class_name, test_name) + "\n}"
 
 
 class Tester(PatternMatchingEventHandler):
