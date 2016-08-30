@@ -71,7 +71,6 @@ class Builder(FileSystemEventHandler):
             cprint(e.stderr, 'red')
             print(notify(e.stderr))
 
-
 class Gulp(Builder):
     def full(self):
         npm("run", "build", _cwd=self.cwd, _bg=True, _out=self.out)
@@ -149,6 +148,7 @@ def run(client, watch, dirs):
     if not dirs:
         dirs = os.listdir('.')
 
+    dirs.append(os.getcwd())
     for path in dirs:
         if not os.path.isdir(path):
             continue
