@@ -3,6 +3,7 @@ Provides development tools.
 """
 
 import sys
+from os.path import basename
 import os
 import os.path
 import datetime
@@ -58,8 +59,6 @@ class Builder(FileSystemEventHandler):
     def on_any_event(self, event):
         path = event.src_path
         if event.event_type == "deleted" or not os.path.isfile(path):
-            return
-        if self.cmd is None and self.cmdp is None:
             return
         print(event.event_type + " " + path)
         start = datetime.datetime.now().replace(microsecond=0)
@@ -119,13 +118,15 @@ class PaperTrail(Builder):
         self.client = client
 
     def build(self, path):
+        print path
         with open(path, 'rt') as script:
-            self.client.upload_script(path, script.read())
+            self.client.upload_script(basename(path), script.read())
 
     def watch(self):
-        if os.path.isdir(self.path + "/System/scripts"):
-            self.out("Watching system/scripts\n")
-            self.observer.schedule(self, self.path + "/System/scripts", recursive=True)
+        path = self.path + "/System/scripts"
+        if os.path.isdir(path):
+            self.out("Watching %s" % path)
+            self.observer.schedule(self, path, recursive=True)
 
     def full(self):
         if os.path.isdir(self.path + "/System/scripts"):
