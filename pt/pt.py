@@ -14,7 +14,8 @@ from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import commands
-from utils import bgcolors, load_site_config
+from utils import bgcolors, load_site_config, http_get, download_file
+import tempfile
 
 
 @click.group()
@@ -51,6 +52,41 @@ def papertrail(ctx, host, username, password, site):
 def deploy(client, file):
     """Deploys a package from a local FILE"""
     client.deploy_package(basename(file.name), file)
+
+
+@papertrail.command()
+@click.argument('url')
+@click.argument('filename')
+@click.pass_obj
+def deploy_url(client, url, filename):
+    temp = tempfile.NamedTemporaryFile()
+    download_file(url, temp.name)
+    client.deploy_package(filename, temp)
+    temp.close()
+
+
+@papertrail.command()
+@click.argument('project')
+@click.option('--install', is_flag=True, default=False, help='Deploy the install package instead of the upgrade package')
+@click.pass_obj
+def deploy_ci(client, project, install):
+    """Deploys a package by downloading the latest CircleCI artifact using ci:<user>/<repo>
+    Requires the CIRCLECI environment variable be set with an access token
+    """
+    url = "https://circleci.com/api/v1.1/project/github/%s?circle-token=%s" % (project, os.environ['CIRCLECI']);
+    build = http_get(url).json()[0]["build_num"]
+    url = "https://circleci.com/api/v1.1/project/github/%s/%s/artifacts?circle-token=%s" % (project,build, os.environ['CIRCLECI']);
+
+
+    for file in http_get(url).json():
+        if install and file["pretty_path"].endswith("-install.zip"):
+            url = file["url"]
+        elif not install and file["pretty_path"].endswith("-upgrade.zip"):
+            url = file["url"]
+
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    download_file(url + "?circle-token=%s" % (os.environ['CIRCLECI']), temp.name)
+    client.deploy_package(project + ".zip", temp)
 
 
 @papertrail.command()
@@ -117,7 +153,9 @@ def _eval(client, code):
     import com.egis.*;
     import com.egis.kernel.*;
     import com.egis.kernel.db.*;
+    import com.egis.kernel.service.*;
     import com.egis.utils.*;
+    import com.egis.model.*;
     import com.egis.data.*;
     import com.egis.data.node.*;
     import com.egis.data.party.*;
