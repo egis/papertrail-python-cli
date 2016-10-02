@@ -195,9 +195,23 @@ def post(client, url, data):
 
     Usage example:
     pt post execute/action key=value
+
+    or to upload a file:
+    pt post "action/execute/bulk_import" file=@path/to/Clients.csv node=System/clients delimiter=";" qualifier="\""
     """
+    files = {}
     data = {pair[0]: pair[1] for pair in map(lambda pair: pair.split('=', 1), data)}
-    response = client.post(url, data)
+    for key in data:
+        if data[key].startswith('@'):
+            path = data[key][1:len(data[key])]
+            files[key] = (path, open(path, 'rb'))
+
+
+
+    if len(files) > 0:
+        response = client.post(url, data,files=files)
+    else:
+        response = client.post(url, data)
 
     if response and (response.status_code >= 200 and response.status_code < 300):
         print(response.text)
