@@ -38,7 +38,7 @@ def run(name, vhost, data, install, version, port, mem, debug, mysql, mssql, ima
     if vhost is None:
         args = args + ["-p", "%s:%s" % (port, port)]
     else:
-        args = args + ["-e", "VIRTUAL_HOST", vhost]
+        args = args + ["-e", "VIRTUAL_HOST:%s" % vhost]
 
     print args
 
