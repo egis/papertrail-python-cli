@@ -17,7 +17,7 @@ if os.name == 'posix':
 
 setup(
     name='pt',
-    version='0.3.3',
+    version='0.4.0',
     install_requires=requirements,
     author='Egis Software',
     url='http://papertrail.co.za',
