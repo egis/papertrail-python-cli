@@ -24,7 +24,7 @@ class MyAdapter(HTTPAdapter):
                                        block=block,
                                        cert_reqs='CERT_REQUIRED',
                                        ca_certs=ca_certs, 
-                                       ssl_version=ssl.PROTOCOL_SSLv3)
+                                       ssl_version=ssl.PROTOCOL_TLSv1_2)
 
 
 http = requests.Session()
