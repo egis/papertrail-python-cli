@@ -2,7 +2,16 @@ import os
 import sh
 import click
 
-@click.command('docker')
+
+@click.group('docker')
+def run():
+    pass
+
+@run.command('restore')
+def restore():
+    pass    
+
+@run.command('run')
 @click.option('--name', required=True, help="The name of the docker container")
 @click.option('--vhost', required=False)
 @click.option('--port', required=False, default=8080)
@@ -14,7 +23,7 @@ import click
 @click.option('--debug', is_flag=True, help="Turn off auto restart of a PaperTrail instance after the update")
 @click.option('--mysql', is_flag=True, help="Use a mysql database instead of PostgreSQL")
 @click.option('--mssql', is_flag=True, help="Use Microsoft SQL Server on linux instead of PostgreSQL")
-def run(name, vhost, data, install, version, port, mem, debug, mysql, mssql, image):
+def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mssql, image):
     docker = sh.Command("docker")
     IMAGE = image
     if IMAGE is None and mysql:
