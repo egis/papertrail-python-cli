@@ -16,7 +16,7 @@ def restore():
 @click.option('--vhost', required=False)
 @click.option('--port', required=False, default=8080)
 @click.option('--data', required=False, help="The location of the PT Repo and Index, defaults to /opt/Data/<name>")
-@click.option('--install', required=False, help="The location of a local instalatioon directory to use")
+@click.option('--install', required=False, help="The location of a local installation directory to use")
 @click.option('--version', required=False, help="The version of papertrail to deploy, defaults to the the latest stable, e.g. nightly, stable")
 @click.option('--mem', required=False, default=128)
 @click.option('--image', required=False, help="An optional docker image to use")
