@@ -1,15 +1,73 @@
-import os
 import sh
 import click
-
+import time
 
 @click.group('docker')
 def run():
     pass
 
+
 @run.command('restore')
-def restore():
-    pass    
+@click.option('--name', required=True, help="The name of the docker container")
+@click.option('--bucket', required=True, default='solutions.papertrail', help="Restore bucket")
+@click.option('--akey', required=False, default='AKIAJJUJPE4PHBUUACCA', help="Access key")
+@click.option('--skey', required=False, default='O+AT2ymCWdMOBmztFJa6bpZ1WlqU4klNlrjJAqWJ', help="Secret key")
+@click.option('--lic', required=False, default='solutions.papertrail.co.za#PaperTrail Cloud #5#Standard#b7bb45d4', help="Licence")
+@click.pass_context
+def restore(ctx, name, bucket, akey, skey, lic):
+
+    docker = sh.Command("docker")
+
+    print "restoring %s" % name
+    state = _get_container_state(name)
+
+    if "Running" in state:
+        #stop the container and then start it adding ENV
+        print "stopping and removing %s" % name
+        try:
+            state = docker("stop", name)
+            state = docker("rm", name)
+        except:
+            # Container is not "present"
+            print "Something went wrong while stopping and removing %s" % name
+
+    if "Stopped" in state:
+        print "removing %s" % name
+        try:
+            state = docker("rm", name)
+        except:
+            # Container is not "present"
+            print "Something went wrong while removing %s" % name
+
+    print "starting %s in wizard mode" % name
+    ctx.invoke(docker_run, name=name, version="nightly", wizard=True)
+
+    json = {
+        "restart-type": "FULL",
+        "restore.threads": 4,
+        "property.data.dir": '/opt/Data/PT_Repo',
+        "property.index.dir": '/opt/Data/PT_Index',
+        "property.license": lic,
+        "type": 'S3',
+        "restore.bucket": bucket,
+        "restore.accessKey": akey,
+        "restore.secretKey": skey
+    }
+
+    status_code = 0
+    while  status_code != 200:
+        print "Waiting for app to respond..."
+        time.sleep(10)
+        try:
+            r = ctx.obj.get(url="")
+            status_code = r.status_code
+        except:
+            pass
+
+    r = ctx.obj.post(url="wizard", data=json)
+    if r.status_code != 200 and r.status_code != 204:
+        raise StandardError(str(r.status_code) + "=" + r.text)
+
 
 @run.command('run')
 @click.option('--name', required=True, help="The name of the docker container")
@@ -23,7 +81,8 @@ def restore():
 @click.option('--debug', is_flag=True, help="Turn off auto restart of a PaperTrail instance after the update")
 @click.option('--mysql', is_flag=True, help="Use a mysql database instead of PostgreSQL")
 @click.option('--mssql', is_flag=True, help="Use Microsoft SQL Server on linux instead of PostgreSQL")
-def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mssql, image):
+@click.option('--wizard', is_flag=True, help="Whether to start the conrainer in WIZARD (restore) mode")
+def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mssql, image, wizard):
     docker = sh.Command("docker")
     IMAGE = image
     if IMAGE is None and mysql:
@@ -47,8 +106,10 @@ def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mss
     if vhost is None:
         args = args + ["-p", "%s:%s" % (port, port)]
     else:
-        args = args + ["-e", "VIRTUAL_HOST=%s" %
-         vhost]
+        args = args + ["-e", "VIRTUAL_HOST=%s" % vhost]
+
+    if wizard:
+        args = args + ["-e", "WIZARD=true"]
 
     print args
 
@@ -57,3 +118,24 @@ def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mss
         docker(args + ["-e", "VERSION=%s" % version, IMAGE])
     else:
         docker(args + ["-v",  "%s:/opt/install" % install, IMAGE])
+
+
+
+def _get_container_ip(container):
+    docker = sh.Command("docker")
+    ip = docker("inspect" , "-f", "'{{.NetworkSettings.IPAddress}}'", container)
+    return ip.stdout.strip(' \t\n\r\'')
+
+
+def _get_container_state(container):
+    docker = sh.Command("docker")
+    try:
+        state = docker("inspect", "-f", "'{{.State.Running}}'", container)
+    except:
+        #Container is not "present"
+        return "Missing"
+    if state.exit_code == 0 and  'true' in state.stdout :
+        return "Running"
+    #Container is "present" but is not running
+    return "Stopped"
+
