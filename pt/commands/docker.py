@@ -9,10 +9,10 @@ def run():
 
 @run.command('restore')
 @click.option('--name', required=True, help="The name of the docker container")
-@click.option('--bucket', required=True, default='solutions.papertrail', help="Restore bucket")
-@click.option('--akey', required=False, default='AKIAJJUJPE4PHBUUACCA', help="Access key")
-@click.option('--skey', required=False, default='O+AT2ymCWdMOBmztFJa6bpZ1WlqU4klNlrjJAqWJ', help="Secret key")
-@click.option('--lic', required=False, default='solutions.papertrail.co.za#PaperTrail Cloud #5#Standard#b7bb45d4', help="Licence")
+@click.option('--bucket', required=True, help="Restore bucket")
+@click.option('--access', required=True, help="Access key")
+@click.option('--secret', required=True, help="Secret key")
+@click.option('--lic', required=True, help="Licence")
 @click.pass_context
 def restore(ctx, name, bucket, akey, skey, lic):
 
