@@ -14,7 +14,7 @@ def run():
 @click.option('--secret', required=True, help="Secret key")
 @click.option('--lic', required=True, help="Licence")
 @click.pass_context
-def restore(ctx, name, bucket, akey, skey, lic):
+def restore(ctx, name, bucket, access, secret, lic):
 
     docker = sh.Command("docker")
 
@@ -50,8 +50,8 @@ def restore(ctx, name, bucket, akey, skey, lic):
         "property.license": lic,
         "type": 'S3',
         "restore.bucket": bucket,
-        "restore.accessKey": akey,
-        "restore.secretKey": skey
+        "restore.accessKey": access,
+        "restore.secretKey": secret
     }
 
     status_code = 0
