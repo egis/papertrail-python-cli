@@ -7,7 +7,7 @@ import datetime as dt
 import threading
 import ssl
 import sys
-
+import urllib3
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.poolmanager import PoolManager
