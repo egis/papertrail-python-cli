@@ -9,25 +9,35 @@ import ssl
 import sys
 import urllib3
 import requests
+http = requests.Session()
+
+
 from requests.adapters import HTTPAdapter
 from urllib3.poolmanager import PoolManager
 from urllib3.exceptions import InsecureRequestWarning
 urllib3.disable_warnings(InsecureRequestWarning)
 
-class MyAdapter(HTTPAdapter):
+try:
+    from requests.packages.urllib3.poolmanager import PoolManager
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+except Exception, e:
+    print str(e)
 
-    def init_poolmanager(self, connections, maxsize, block=False):
-        ca_certs = "/etc/ssl/certs/ca-certificates.crt"  
-        self.poolmanager = PoolManager(num_pools=connections,
-                                       maxsize=maxsize,
-                                       block=block,
-                                       cert_reqs='CERT_REQUIRED',
-                                       ca_certs=ca_certs, 
-                                       ssl_version=ssl.PROTOCOL_TLSv1_2)
+try:
+    class MyAdapter(HTTPAdapter):
 
-
-http = requests.Session()
-http.mount('https://', MyAdapter())
+        def init_poolmanager(self, connections, maxsize, block=False):
+            ca_certs = "/etc/ssl/certs/ca-certificates.crt"  
+            self.poolmanager = PoolManager(num_pools=connections,
+                                           maxsize=maxsize,
+                                           block=block,
+                                           cert_reqs='CERT_REQUIRED',
+                                           ca_certs=ca_certs, 
+                                           ssl_version=ssl.PROTOCOL_TLSv1_2)
+    http.mount('https://', MyAdapter())
+except Exception, e:
+    print str(e)
 
 
 class Timer:
