@@ -7,16 +7,10 @@ import datetime as dt
 import threading
 import ssl
 import sys
-import urllib3
 import requests
 http = requests.Session()
 
-
 from requests.adapters import HTTPAdapter
-from urllib3.poolmanager import PoolManager
-from urllib3.exceptions import InsecureRequestWarning
-urllib3.disable_warnings(InsecureRequestWarning)
-
 try:
     from requests.packages.urllib3.poolmanager import PoolManager
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
