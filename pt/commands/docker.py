@@ -74,7 +74,7 @@ def restore(ctx, name, bucket, access, secret, lic, swarm):
 @click.option('--data', required=False, help="The location of the PT Repo and Index, defaults to /opt/Data/<name>")
 @click.option('--install', required=False, help="The location of a local installation directory to use")
 @click.option('--version', required=False, help="The version of papertrail to deploy, defaults to the the latest stable, e.g. nightly, stable")
-@click.option('--mem', required=False, default=128)
+@click.option('--mem', required=False, default=256)
 @click.option('--image', required=False, help="An optional docker image to use")
 @click.option('--debug', is_flag=True, help="Turn off auto restart of a PaperTrail instance after the update")
 @click.option('--mysql', is_flag=True, help="Use a mysql database instead of PostgreSQL")
