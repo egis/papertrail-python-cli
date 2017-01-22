@@ -9,12 +9,12 @@ def run():
 
 
 @run.command('restore')
-@click.option('--name', required=True, help="The name of the docker container")
+@click.option('--name', required=True, help="The name of the Docker container")
 @click.option('--bucket', required=True, help="Restore bucket")
-@click.option('--access', required=True, help="Access key")
-@click.option('--secret', required=True, help="Secret key")
+@click.option('--access', envvar=['S3_ACCESS_KEY'], help="S3 access key or use S3_ACCESS_KEY environment variable")
+@click.option('--secret', envvar=['S3_SECRET_KEY'], help="S3 secret key or use S3_SECRET_KEY environment variable")
 @click.option('--lic', required=True, help="Licence")
-@click.option('--swarm', is_flag=True, help="Whether to restore the conrainer on Docker swarm cluster")
+@click.option('--swarm', is_flag=True, help="Whether to restore the container on Docker swarm cluster")
 @click.pass_context
 def restore(ctx, name, bucket, access, secret, lic, swarm):
 
