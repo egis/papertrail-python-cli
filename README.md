@@ -1,3 +1,5 @@
+![img](https://travis-ci.org/egis/papertrail-python-cli.svg?branch=master)
+
 A command line application to interact with a PaperTrail Server
 
 To install:
