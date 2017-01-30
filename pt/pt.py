@@ -47,6 +47,21 @@ def papertrail(ctx, host, username, password, site):
 
 
 @papertrail.command()
+@click.option('--host', default='http://localhost:8080', envvar='PT_API', help='or use the PT_API environment variable')
+@click.option('--username', default='admin', envvar=['PT_USER', 'PT_API_USER'], help='or use the PT_USER/PT_API_USER environment variable')
+@click.option('--password', default='p', envvar=['PT_PASS', 'PT_API_PASS'], help='or use the PT_PASS/PT_API_PASS environment variable')
+@click.option('--file', required=True, help='file to save site credentials to')
+def login(host, username, password, file):
+    """Set the site credentials"""
+    f = open(file, 'w')
+    f.write('PT_API=%s\0' % host)
+    f.write('PT_API_USER=%s\0' % username)
+    f.write('PT_USER=%s\0' % username)
+    f.write('PT_API_PASS=%s\0' % password)
+    f.write('PT_PASS=%s\0' % password)
+
+
+@papertrail.command()
 @click.argument('file', type=click.File('rb'))
 @click.pass_obj
 def deploy(client, file):
