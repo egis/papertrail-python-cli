@@ -163,11 +163,11 @@ def run(client, watch, dirs):
         if os.path.isfile(path + "/package.json"):
             builder = Gulp(path, observer, watch)
 
-        if os.path.isfile(path + "/build.gradle"):
-            builder = Gradle(path, observer, watch)
-
         if os.path.isfile(path + "/build.xml"):
             builder = Ant(path, observer, watch)
+        elif os.path.isfile(path + "/build.gradle"):
+            builder = Gradle(path, observer, watch)
+
 
     observer.start()
     notify("Started")
