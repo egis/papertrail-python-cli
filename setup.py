@@ -16,7 +16,7 @@ if os.name == 'posix':
     requirements.append('sh')
 
 setup(
-    name='pt',
+    name='papertrail-cli',
     version='1.0.0',
     install_requires=requirements,
     author='Egis Software',
