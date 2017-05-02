@@ -4,7 +4,7 @@ machine:
 
 dependencies:
   post:
-    - pip install -U -r dev-requirements.txt
+    - pip install -U -r requirements.txt
     - python setup.py sdist bdist_wheel
     - twine upload dist/* 
 
