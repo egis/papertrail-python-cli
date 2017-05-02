@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from setuptools import setup
+from setuptools import find_packages, setup
 
 requirements=[
     'Click',
@@ -17,14 +17,15 @@ if os.name == 'posix':
 
 setup(
     name='pt',
-    version='0.4.0',
+    version='1.0.0',
     install_requires=requirements,
     author='Egis Software',
-    url='http://papertrail.co.za',
+    url='https://github.com/egis/papertrail-python-cli',
     description='Papertrail Command Line Utils',
-    packages=['pt', 'pt.commands'],
-    entry_points='''
-    [console_scripts]
-    pt=pt.pt:papertrail
-    '''
+    packages=find_packages(),
+    entry_points={
+        "console_scripts": [
+            "pt = pt.pt:main",
+        ]
+    }
 )

@@ -1,0 +1,13 @@
+machine:
+  python:
+    version: 3.5.1
+
+dependencies:
+  post:
+    - pip install -U -r dev-requirements.txt
+    - python setup.py sdist bdist_wheel
+    - twine upload dist/* 
+
+test:
+  override:
+    - echo ok

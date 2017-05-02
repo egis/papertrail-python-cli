@@ -460,8 +460,11 @@ def _import(client, file):
         print(response)
 
 
-colorama.init()
-commands.init_plugins(papertrail)
+def main():
+   colorama.init()
+   commands.init_plugins(papertrail)
+   papertrail()
+
 
 if __name__ == '__main__':
     papertrail()
