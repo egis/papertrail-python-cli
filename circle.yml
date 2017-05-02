@@ -1,14 +1,13 @@
-machine:
-  python:
-    version: 3.5.1
 
-dependencies:
-  post:
-    - pip install -U -r requirements.txt
-    - python setup.py sdist
-    - sudo pip install twine
-    - twine upload dist/* 
-
-test:
-  override:
-    - echo ok
+version: 2
+jobs:
+  build:
+    docker:
+      - image: python:3.5
+    working_directory: /home/ubuntu/working
+    steps:
+        - checkout
+        - run: pip install -U -r requirements.txt
+        - run: python setup.py sdist
+        - run: sudo pip install twine
+        - run: twine upload dist/*
