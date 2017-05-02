@@ -6,6 +6,7 @@ dependencies:
   post:
     - pip install -U -r requirements.txt
     - python setup.py sdist
+    - sudo pip install twine
     - twine upload dist/* 
 
 test:
