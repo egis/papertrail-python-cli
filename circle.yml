@@ -1,9 +1,8 @@
-
 version: 2
 jobs:
   build:
     docker:
-      - image: python:3.5
+      - image: python:2
     working_directory: /home/ubuntu/working
     steps:
         - checkout
@@ -11,3 +10,7 @@ jobs:
         - run: python setup.py sdist
         - run: pip install twine
         - run: twine upload dist/*
+        - run: sed -i.bak s/BUILD_NUMBER/$CIRCLE_BUILD_NUM/g installer.cfg
+        - run: pynsist installer.cfg
+        - store_artifacts:
+            path: build/nsis
