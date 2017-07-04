@@ -17,7 +17,7 @@ if os.name == 'posix':
 
 setup(
     name='papertrail-cli',
-    version='1.0.0',
+    version='1.0.' + os.environ['CIRCLE_BUILD_NUM'],
     install_requires=requirements,
     author='Egis Software',
     url='https://github.com/egis/papertrail-python-cli',
