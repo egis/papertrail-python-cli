@@ -23,6 +23,9 @@ def run_pql_repl(client):
             print_pql_response(response)
 
 def print_pql_csv(data):
+    if 'count' in data and data['count'] == 0:
+        return
+
     if not ('items' in data):
         raise Exception('Invalid data in response:', data)
 
@@ -39,6 +42,9 @@ def print_pql_json(data):
     print(json.dumps(data, indent=2))
 
 def print_pql_response(data):
+    if 'count' in data and data['count'] == 0:
+        return
+
     """Prints response in a human-readable format"""
     if not ('items' in data):
         raise Exception('Invalid data in response:', data)
