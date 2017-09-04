@@ -9,7 +9,8 @@ requirements=[
     'progressbar2',
     'termcolor',
     'colorama',
-    'watchdog'
+    'watchdog',
+    'mcommons'
 ]
 
 if os.name == 'posix':

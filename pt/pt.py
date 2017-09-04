@@ -17,6 +17,8 @@ import commands
 from utils import bgcolors, load_site_config, http_get, download_file
 import tempfile
 
+from commons import *
+
 
 @click.group()
 @click.option('--site', required=False, envvar='PT_SITE', help='Name of the file with site credentials')
@@ -438,6 +440,37 @@ def sessions(client, count_only, since):
         # print "{:30s} {:20s} ({:30s}) {:10s}".format(item['user'],
         # item['startDate'], item['lastAccessTime'], item['userAgent'])
 
+
+@papertrail.command()
+@click.pass_obj
+def tasks(client):
+    client.task_list()
+
+
+@papertrail.command()
+@click.option('--info', is_flag=True, default=False)
+@click.pass_obj
+def logs(client, info):
+    client.logs(info)
+
+@papertrail.command()
+@click.pass_obj
+def get_backup_config(client):
+   access, secret, bucket=client.get_backup_config()
+   if access is not None:
+    print """AWS_ACCESS_KEY_ID=%s
+AWS_SECRET_ACCESS_KEY=%s
+S3_BUCKET=%s""" % (access, secret, bucket)
+
+
+@papertrail.command()
+@click.option('--bucket', envvar=['S3_BUCKET'], required=True, help="S3 bucket nameto place backups in or use S3_BUCKET environment variable")
+@click.option('--access', envvar=['AWS_ACCESS_KEY_ID'], help="S3 access key or use S3_ACCESS_KEY environment variable")
+@click.option('--secret', envvar=['AWS_SECRET_ACCESS_KEY'], help="S3 secret key or use S3_SECRET_KEY environment variable")
+@click.option('--schedule', default="0 20 * * * ", help="The database backup schedule to use, defaults to 8pm daily")
+@click.pass_obj
+def configure_backups(client, bucket, access, secret, schedule):
+    client.config_backups(bucket, access, secret, schedule)
 
 @papertrail.command()
 @click.argument('entity')
