@@ -10,7 +10,8 @@ requirements=[
     'termcolor',
     'colorama',
     'watchdog',
-    'mcommons'
+    'mcommons',
+    'dnspython'
 ]
 
 if os.name == 'posix':
