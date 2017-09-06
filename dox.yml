@@ -1,0 +1,9 @@
+testing:
+  images:
+    - egis/ubuntu-base
+  add:
+    - requirements.txt
+  prep:
+    - pip install -r requirements.txt
+  commands:
+    - python setup.py install --user
