@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: egis/ubuntu-base
+      - image: egis/build-slave
     working_directory: /home/ubuntu/working
     steps:
         - run: apt-get update -y && apt-get install -y nsis
