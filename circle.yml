@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: python:2
+      - image: egis/ubuntu:base
     working_directory: /home/ubuntu/working
     steps:
         - run: apt-get update -y && apt-get install -y nsis
@@ -10,6 +10,7 @@ jobs:
         - checkout
         - run: sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g installer.cfg
         - run: sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g setup.py
+        - run: dox
         - run: pip install -U -r requirements.txt
         - run: python setup.py sdist
         - run: twine upload dist/*
