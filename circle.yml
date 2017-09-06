@@ -3,7 +3,7 @@ jobs:
   build:
     docker:
       - image: egis/build-slave
-    working_directory: /home/ubuntu/working
+    working_directory:  ~/papertrail-python-cli
     steps:
         - run: apt-get update -y && apt-get install -y nsis
         - run: pip install twine pynsist
