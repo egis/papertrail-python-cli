@@ -10,6 +10,7 @@ jobs:
         - checkout
         - run: sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g installer.cfg
         - run: sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g setup.py
+        - run: pip install dox
         - run: dox
         - run: pip install -U -r requirements.txt
         - run: python setup.py sdist
