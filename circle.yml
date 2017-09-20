@@ -2,14 +2,17 @@ version: 2
 jobs:
   build:
     docker:
-      - image: python:2
-    working_directory: /home/ubuntu/working
+      - image: egis/build-slave
+    working_directory:  ~/papertrail-python-cli
     steps:
         - run: apt-get update -y && apt-get install -y nsis
         - run: pip install twine pynsist
         - checkout
         - run: sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g installer.cfg
         - run: sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g setup.py
+        - run: pip install dox
+        - setup_remote_docker
+        - run: dox
         - run: pip install -U -r requirements.txt
         - run: python setup.py sdist
         - run: twine upload dist/*

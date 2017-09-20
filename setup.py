@@ -9,7 +9,9 @@ requirements=[
     'progressbar2',
     'termcolor',
     'colorama',
-    'watchdog'
+    'watchdog',
+    'mcommons',
+    'dnspython'
 ]
 
 if os.name == 'posix':
