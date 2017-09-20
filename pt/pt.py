@@ -16,6 +16,8 @@ import service
 import commands
 from utils import bgcolors, load_site_config, http_get, download_file
 import tempfile
+from cookiecutter.main import cookiecutter
+import subprocess
 
 
 @click.group()
@@ -67,6 +69,23 @@ def login(host, username, password, file):
 def deploy(client, file):
     """Deploys a package from a local FILE"""
     client.deploy_package(basename(file.name), file)
+
+
+@papertrail.command()
+@click.argument('name')
+@click.pass_obj
+def create_project(client, name):
+    """Creates a new project for PaperTrail"""
+    print("Downloading https://github.com/egis/ProjectBootstrap...")
+    path = cookiecutter('https://github.com/egis/ProjectBootstrap.git', no_input=True, output_dir=name)
+    gradle_exec = "gradle"
+
+    if os.name == 'nt':
+        gradle_exec += ".bat"
+
+    print("Setting up dependencies...")
+    subprocess.call([gradle_exec, "setup"], cwd=path)
+    print(path + " is ready")
 
 
 @papertrail.command()
