@@ -10,7 +10,7 @@ import datetime
 import time
 
 if os.name == 'nt':
-    # Build command is nnot supported on Windows
+    # Build command is not supported on Windows
     raise Exception('Warning: build command is not supported on Windows')
 
 import click
