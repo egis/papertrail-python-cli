@@ -8,6 +8,7 @@ requirements=[
     'requests',
     'progressbar2',
     'termcolor',
+    'cookiecutter',
     'colorama',
     'watchdog',
     'mcommons',
