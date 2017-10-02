@@ -254,7 +254,7 @@ class Client:
             return response.text
 
     def execute(self, script):
-        result = self.post('script/execute', {'code': script},)
+        result = self.post('script/execute', {'code': script},stream=True)
         text = result.text
         return text.replace("\\n", "\n").replace('result =' , '').strip()
 

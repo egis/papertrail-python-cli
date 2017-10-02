@@ -1,8 +1,7 @@
 import os, sys
 import atexit
 import csv, json
-
-from utils import http_get
+from commons import *
 
 def run_pql_repl(client):
     if os.name == 'posix':
