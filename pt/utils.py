@@ -5,34 +5,7 @@ import time
 import os, os.path
 import datetime as dt
 import threading
-import ssl
 import sys
-import requests
-http = requests.Session()
-
-from requests.adapters import HTTPAdapter
-try:
-    from requests.packages.urllib3.poolmanager import PoolManager
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
-    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-except Exception, e:
-    print str(e)
-
-try:
-    class MyAdapter(HTTPAdapter):
-
-        def init_poolmanager(self, connections, maxsize, block=False):
-            ca_certs = "/etc/ssl/certs/ca-certificates.crt"  
-            self.poolmanager = PoolManager(num_pools=connections,
-                                           maxsize=maxsize,
-                                           block=block,
-                                           cert_reqs='CERT_REQUIRED',
-                                           ca_certs=ca_certs, 
-                                           ssl_version=ssl.PROTOCOL_TLSv1_2)
-    http.mount('https://', MyAdapter())
-except Exception, e:
-    print str(e)
-
 
 class Timer:
 
@@ -65,18 +38,6 @@ def print_ok(str):
 def print_fail(str):
     sys.stderr.write(bgcolors.FAIL + str + bgcolors.ENDC)
 
-
-def ping(host, port):
-    s = socket(AF_INET, SOCK_STREAM)
-    try:
-        s.connect((host, port))
-        s.close()
-        return True
-    except Exception, e:
-        s.close()
-        return False
-
-
 def load_site_config(site):
     path = None
 
@@ -91,95 +52,6 @@ def load_site_config(site):
     return {val[0]: val[1] for val in map(lambda line: line.split('=', 1), env.split('\0')) if len(val) == 2}
 
 
-def call_async(func, args):
-    t = threading.Thread(target=func, args=args)
-    t.daemon = True
-    t.start()
-
-    def null():
-        pass
-
-    return null
-
-
-def stream_process_results(p, prefix=''):
-    out = ""
-    while True:
-        line = p.stdout.readline()
-        if not line:
-            p.poll()
-            print_info ("[%s] " % prefix)
-            print_ok (line + "\n")
-            if p.returncode == 0:
-                print_info(prefix + " ")
-                print_ok("[0]\n")
-            else:
-                print_info(prefix + " ")
-                print_fail("[%s]" % p.returncode + "\n")
-            
-            print
-
-def print_process_result(p, prefix='',full=False):
-    out = ""
-    while True:
-        line = p.stdout.readline()
-        if not line:
-            p.poll()
-            if p.returncode == 0:
-                print_info(prefix + " ")
-                print_ok("[0]\n")
-                if full:
-                    print out
-            else:
-                print_info(prefix + " ")
-                print_fail("[%s]" % p.returncode + "\n")
-                print out
-            return out
-        out += line + "\n"
-
-def print_process(p, prefix=''):  
-    while True:
-        line = p.stdout.readline()
-        if not line:
-            p.poll()
-            if p.returncode == 0:
-                print_info(prefix + " ")
-                print_ok("[0]\n")                
-            else:
-                print_info(prefix + " ")
-                print_fail("[%s]" % p.returncode + "\n")           
-            return p.returncode
-        print line
-
-
-def print_response(r):
-    if r.status_code >= 200 and r.status_code < 300:
-        print_ok(str(r.status_code) + "\n")
-    elif r.status_code == 401:
-        print_fail("[%s]\nInvalid password or username, or you don't have access to the URL.\n" % (str(r.status_code)))
-    elif r.status_code == 500:
-        error = r.json()
-        print_fail("[%s]\n%s (Error: %s)\n" % (str(r.status_code), error['errorMessage'], error['context']))
-    else:
-        print_fail("[%s]\n %s\n" % (str(r.status_code), r.text))
-
-
-def http_post(url, data, headers={}, username=None, password=None, **kwargs):
-    try:
-
-        print_info(url + " ..  ")
-        headers['User-Agent'] = 'Mozilla'
-        headers['jsonErrors'] = 'true'
-        r = requests.post(url, data=data, verify=False, auth=(username, password), headers=headers, allow_redirects=False, **kwargs)
-        if r.status_code > 300 and r.status_code < 400:
-            print_ok(" -> " + r.headers['Location'] + "\n")
-            return http_post(r.headers['Location'], data=data, headers=headers, username=username, password=password, **kwargs)
-        print_response(r)
-        return r
-    except Exception, e:
-        print_fail(str(e))
-
-
 def download_file(url, local_filename):
     # NOTE the stream=True parameter
     r = requests.get(url, stream=True)
@@ -189,26 +61,6 @@ def download_file(url, local_filename):
                f.write(chunk)
                #f.flush() commented by recommendation from J.F.Sebastian
     return local_filename
-
-
-def http_get(url, data=None, username=None, password=None, **kwargs):
-    try:
-        print_info(url + " ..  ")
-
-        r = requests.get(url, params=data, verify=False,
-                         headers={"User-Agent": 'Mozilla', 'jsonErrors': 'true'},
-                         auth=(username, password),
-                         allow_redirects=False, **kwargs)
-
-        if r.status_code > 300 and r.status_code < 400:
-            print_ok(" -> " + r.headers['Location'] + "\n")
-            return http_get(r.headers['Location'], data, username, password, **kwargs)
-
-        print_response(r)
-
-        return r
-    except Exception, e:
-        print_fail(str(e))
 
 
 def execute(command, async=False,  env=os.environ):
@@ -235,7 +87,7 @@ def ansible_playbook(playbook, host,hostname,extra_vars=None,group=None,private_
         _group.add_host(inventory.get_host(host))
         inventory.add_group(_group)
     pb = ansible.playbook.PlayBook(
-        playbook=playbook, 
+        playbook=playbook,
         inventory=inventory,
         callbacks=playbook_cb,
         runner_callbacks=runner_cb,
@@ -250,7 +102,6 @@ def ansible_playbook(playbook, host,hostname,extra_vars=None,group=None,private_
 
     pb.run()
 
-        
 
 
 def wait(condition, sleep=1):
