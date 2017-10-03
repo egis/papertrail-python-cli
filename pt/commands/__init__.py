@@ -4,7 +4,7 @@ import pkgutil
 import importlib
 
 import click
-from termcolor import cprint
+from commons import *
 
 def init_plugins(group):
     """Imports extra commands from modules to a provided click command group."""
@@ -16,9 +16,9 @@ def init_plugins(group):
                 module = importlib.import_module(package.__name__ + '.' + module_name)
 
                 if 'run' not in module.__dict__:
-                    print('Plugin command "%s" doesn\'t provide a "run" method. Aborting.' % (module_name))
+                    print_fail('Plugin command "%s" doesn\'t provide a "run" method. Aborting.' % (module_name))
                     # sys.exit(-1)
-                else:    
+                else:
                     group.add_command(module.run)
             except Exception, e:
-                cprint('[' + module_name + '] ' + str(e), 'yellow')
+                print_fail('[' + module_name + '] ' + str(e) + type(e))

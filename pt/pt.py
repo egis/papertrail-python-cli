@@ -14,7 +14,7 @@ from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import commands
-from utils import bgcolors, load_site_config, http_get, download_file
+from utils import bgcolors, load_site_config, download_file
 import tempfile
 from cookiecutter.main import cookiecutter
 import subprocess
@@ -518,11 +518,10 @@ def _import(client, file):
 @click.pass_obj
 def version(client):
     import pkg_resources
-    print pkg_resources.require("pt")[0].version
+    print pkg_resources.require("papertrail-cli")[0].version
 
 
 def main():
-   colorama.init()
    commands.init_plugins(papertrail)
    papertrail()
 
