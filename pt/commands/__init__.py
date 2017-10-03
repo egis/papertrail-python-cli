@@ -21,4 +21,4 @@ def init_plugins(group):
                 else:
                     group.add_command(module.run)
             except Exception, e:
-                print_fail('[' + module_name + '] ' + str(e) + type(e))
+                print_fail('[%s] %s' % (module_name + str(e) + str(type(e))))
