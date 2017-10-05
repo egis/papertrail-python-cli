@@ -6,6 +6,7 @@ install:
       echo exit /b 0 >> pip-install.bat
       pip-install.bat
       rm pip-install.bat
+      touch c:\python27\lib\site-packages\zope\__init__.py
 
 build_script:
   - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g installer.cfg
