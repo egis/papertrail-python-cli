@@ -4,8 +4,8 @@ install:
   - pip install -U -r requirements.txt
 
 build_script:
-  - sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g installer.cfg
-  - sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g setup.py
+  - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g installer.cfg
+  - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g setup.py
   - pynsist installer.cfg
 
 artifacts:
