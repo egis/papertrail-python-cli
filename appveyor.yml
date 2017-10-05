@@ -1,0 +1,10 @@
+install:
+  - pip install pynsist
+  - pip install -U -r requirements.txt
+
+build_script:
+  - pynsist installer.cfg
+
+artifacts:
+  - path: build/nsis/papertrail-cli-setup.exe
+    name: papertrail-cli-setup.exe
