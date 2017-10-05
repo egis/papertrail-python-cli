@@ -1,9 +1,7 @@
 install:
   - pip install pynsist
   - sed -i.bak s/sh==1.11//g requirements.txt
-  - cmd: |
-      pip install -U -r requirements.txt
-      exit 0
+  - pip install -U -r requirements.txt > nul 2> nul
 
 build_script:
   - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g installer.cfg
