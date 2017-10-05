@@ -1,8 +1,11 @@
 install:
   - pip install pynsist
+  - sed -i.bak s/sh==1.11//g requirements.txt
   - pip install -U -r requirements.txt
 
 build_script:
+  - sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g installer.cfg
+  - sed -i.bak s/{{BUILD_NUMBER}}/$CIRCLE_BUILD_NUM/g setup.py
   - pynsist installer.cfg
 
 artifacts:
