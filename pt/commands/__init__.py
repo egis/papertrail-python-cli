@@ -3,9 +3,6 @@ import sys
 import pkgutil
 import importlib
 
-import click
-from termcolor import cprint
-
 def init_plugins(group):
     """Imports extra commands from modules to a provided click command group."""
     package = sys.modules[__name__]
@@ -21,4 +18,4 @@ def init_plugins(group):
                 else:    
                     group.add_command(module.run)
             except Exception, e:
-                cprint('[' + module_name + '] ' + str(e), 'yellow')
+                print('[' + module_name + '] ' + str(e))
