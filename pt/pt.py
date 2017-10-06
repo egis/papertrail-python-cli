@@ -14,7 +14,7 @@ from client import Client
 from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
 import service
 import commands
-from utils import bgcolors, load_site_config, http_get, download_file
+from utils import bgcolors, load_site_config, download_file
 import tempfile
 from cookiecutter.main import cookiecutter
 import subprocess
@@ -355,6 +355,7 @@ def update_script(client, file):
     """Uploads and updates the script document from a provided FILE"""
     client.upload_script(basename(file.name), file)
 
+
 @papertrail.command()
 @click.argument('docid')
 @click.option('--history', required=False, is_flag=True)
@@ -365,6 +366,7 @@ def info(client,docid, history):
         click.echo(client.get('document/history/' + docid).text)
     else:
         click.echo(client.get('document/details/' + docid).text)
+
 
 @papertrail.command()
 @click.argument('url')
@@ -385,6 +387,7 @@ def form():
 
 papertrail.add_command(form)
 
+
 @form.command()
 @click.argument('form_name')
 @click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
@@ -398,15 +401,12 @@ def new(client, form_name, **kwargs):
        webbrowser.open('{}?{}'.format(token, doc_id))
 
 
-
 @form.command(name="export")
 @click.argument('docid')
 @click.pass_obj
 def form_export(client, docid):
     """Creates a new form from a provided FORM_NAME"""
     click.echo(client.get('public/file/%s/saved.json?path=saved.json' % docid).text)
-
-
 
 
 @form.command(name="list")
@@ -419,7 +419,7 @@ def form_list(client):
 
 @form.command()
 @click.argument('form_name')
-@click.option('--open', required=False, is_flag=True, help="Open the form in a webbrowser")
+@click.option('--open', required=False, is_flag=True, help="Open the form in a browser")
 @click.pass_obj
 def new_classic(client, form_name, **kwargs):
     """Creates a new form from a provided FORM_NAME, using the classic UI"""
@@ -472,12 +472,13 @@ def tasks(client):
 def logs(client, info):
     client.logs(info)
 
+
 @papertrail.command()
 @click.pass_obj
 def get_backup_config(client):
-   access, secret, bucket=client.get_backup_config()
-   if access is not None:
-    print """AWS_ACCESS_KEY_ID=%s
+    access, secret, bucket = client.get_backup_config()
+    if access is not None:
+        print """AWS_ACCESS_KEY_ID=%s
 AWS_SECRET_ACCESS_KEY=%s
 S3_BUCKET=%s""" % (access, secret, bucket)
 
@@ -490,6 +491,7 @@ S3_BUCKET=%s""" % (access, secret, bucket)
 @click.pass_obj
 def configure_backups(client, bucket, access, secret, schedule):
     client.config_backups(bucket, access, secret, schedule)
+
 
 @papertrail.command()
 @click.argument('entity')
@@ -512,8 +514,14 @@ def _import(client, file):
         print(response)
 
 
+@papertrail.command()
+@click.pass_obj
+def version(client):
+    import pkg_resources
+    print pkg_resources.require("papertrail-cli")[0].version
+
+
 def main():
-   colorama.init()
    commands.init_plugins(papertrail)
    papertrail()
 

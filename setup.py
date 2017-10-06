@@ -8,6 +8,7 @@ requirements=[
     'requests',
     'progressbar2',
     'termcolor',
+    'cookiecutter',
     'colorama',
     'watchdog',
     'mcommons',
@@ -29,7 +30,7 @@ if buildNumber.startswith("{{BUILD_"):
 
 setup(
     name='papertrail-cli',
-    version='1.0.' + buildNumber,
+    version='1.1.' + buildNumber,
     install_requires=requirements,
     author='Egis Software',
     url='https://github.com/egis/papertrail-python-cli',
