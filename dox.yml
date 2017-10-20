@@ -6,4 +6,9 @@ testing:
   prep:
     - pip install -r requirements.txt
   commands:
+    - cd /src
+    - ls
     - python setup.py install --user
+    - .local/bin/pt --help
+    - touch a && zip a.zip a
+    - .local/bin/pt deploy a.zip
