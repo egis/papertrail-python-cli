@@ -15,6 +15,7 @@ jobs:
         - run: dox
         - run: pip install -U -r requirements.txt
         - run: python setup.py sdist
+        - run: sudo python setup.py install
         - run: twine upload dist/*
         - run: pynsist installer.cfg
         - store_artifacts:
