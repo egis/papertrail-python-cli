@@ -4,7 +4,7 @@ colorama==0.3.7
 pathtools==0.1.2
 progressbar2==3.10.0
 PyYAML==4.2b4
-requests==2.10.0
+requests==2.20.0
 sh==1.11
 six==1.10.0
 termcolor==1.1.0
