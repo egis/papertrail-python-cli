@@ -15,7 +15,12 @@ jobs:
         - run: dox
         - run: pip install -U -r requirements.txt
         - run: python setup.py sdist
-        - run: twine upload dist/*
+        - run:
+            name: twine
+            command: |
+              if [ "${CIRCLE_PROJECT_USERNAME}" == "egis" ] && [ "${CIRCLE_BRANCH}" == "master" ]; then
+                twine upload dist/*
+              fi
         - run: pynsist installer.cfg
         - store_artifacts:
             path: build/nsis/papertrail-cli-setup.exe
