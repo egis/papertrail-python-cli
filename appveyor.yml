@@ -1,0 +1,18 @@
+install:
+  - pip install pynsist
+  - sed -i.bak s/sh==1.11//g requirements.txt
+  - cmd: |
+      echo pip install -U -r requirements.txt > pip-install.bat
+      echo exit /b 0 >> pip-install.bat
+      pip-install.bat
+      rm pip-install.bat
+      touch c:\python27\lib\site-packages\zope\__init__.py
+
+build_script:
+  - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g installer.cfg
+  - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g setup.py
+  - pynsist installer.cfg
+
+artifacts:
+  - path: build/nsis/papertrail-cli-setup.exe
+    name: papertrail-cli-setup.exe
