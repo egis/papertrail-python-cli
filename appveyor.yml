@@ -12,6 +12,8 @@ build_script:
   - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g installer.cfg
   - sed -i.bak s/{{BUILD_NUMBER}}/%APPVEYOR_BUILD_NUMBER%/g setup.py
   - pynsist installer.cfg
+  - pip install dist/papertrail-cli-1.1.%APPVEYOR_BUILD_NUMBER%.tar.gz
+  - pt version && pt --help
 
 artifacts:
   - path: build/nsis/papertrail-cli-setup.exe
