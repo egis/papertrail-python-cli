@@ -21,3 +21,5 @@ jobs:
               if [ "${CIRCLE_PROJECT_USERNAME}" == "egis" ] && [ "${CIRCLE_BRANCH}" == "master" ]; then
                 twine upload dist/*
               fi
+        - run: pip install dist/papertrail-cli-1.1.$CIRCLE_BUILD_NUM.tar.gz
+        - run: pt version && pt --help
