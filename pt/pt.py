@@ -478,7 +478,7 @@ def logs(client, info):
 def get_backup_config(client):
     access, secret, bucket = client.get_backup_config()
     if access is not None:
-        print ("""AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s S3_BUCKET=%s""" % (access, secret, bucket))
+        print("""AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s S3_BUCKET=%s""" % (access, secret, bucket))
 
 
 @papertrail.command()
@@ -516,7 +516,7 @@ def _import(client, file):
 @click.pass_obj
 def version(client):
     import pkg_resources
-    print pkg_resources.require("papertrail-cli")[0].version
+    print(pkg_resources.require("papertrail-cli")[0].version)
 
 
 def main():

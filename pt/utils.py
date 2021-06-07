@@ -65,7 +65,7 @@ def download_file(url, local_filename):
 
 def execute(command, async=False,  env=os.environ):
     print_info("executing ")
-    print command
+    print(command)
 
     p = Popen(command, stdout=subprocess.PIPE, shell=True, env=os.environ)
     if async:
@@ -74,7 +74,7 @@ def execute(command, async=False,  env=os.environ):
         return print_process_result(p, command)
 
 def ansible_playbook(playbook, host,hostname,extra_vars=None,group=None,private_key_file=None,remote_user=None):
-    print "running play %s on %s" % (playbook, host)
+    print("running play %s on %s" % (playbook, host))
     stats = callbacks.AggregateStats()
     playbook_cb = callbacks.PlaybookCallbacks(verbose=utils.VERBOSITY)
     runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
@@ -82,7 +82,7 @@ def ansible_playbook(playbook, host,hostname,extra_vars=None,group=None,private_
     inventory.get_host(host).set_variable('hostname', hostname)
     inventory.set_playbook_basedir('egis-cloud')
     if group != None:
-        print 'adding ' + group
+        print('adding ' + group)
         _group = ansible.inventory.Group(name=group)
         _group.add_host(inventory.get_host(host))
         inventory.add_group(_group)
