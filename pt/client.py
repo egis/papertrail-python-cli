@@ -30,8 +30,8 @@ class Client:
     def task_list(self, options):
         tasks = json.loads(self.get('tasks'))
         for item in tasks["items"]:
-            print "{:15s} {:30s} {:10s}: {:30s} ({:10s})".format(self.name, item['name'],
-                                                                 item['state'], item['status'], item['duration'])
+            print("{:15s} {:30s} {:10s}: {:30s} ({:10s})".format(self.name, item['name'],
+                                                                 item['state'], item['status'], item['duration']))
 
     def ping(self, port=443):
         host = urlparse.urlparse(self.url).netloc.split(":")[0]
@@ -43,7 +43,7 @@ class Client:
     def db_backup(self):
         start = Timer()
         now = self.server_time()
-        print now
+        print(now)
         minute = now.minute + 1
         hour = now.hour
         if minute == 60:
@@ -52,7 +52,7 @@ class Client:
 
         self.update_properties({'db.backup.schedule': '%s %s * * *' % (minute, hour)})
         wait(self.db_has_current_backup, 10)
-        print "db backed up in " + str(start)
+        print("db backed up in " + str(start))
 
     def get_s3_backup(self,access, secret, bucket, license=None):
         print_info(" Getting last S3 backup ..")
@@ -71,7 +71,7 @@ class Client:
         start = Timer()
         self.fs_sync()
         wait(self.fs_has_current_backup, 10)
-        print "fs backed up in " + str(start)
+        print("fs backed up in " + str(start))
 
     def db_backup_age(self):
         start = self.db_last_backup_time()
@@ -187,8 +187,8 @@ class Client:
     def task_list(self):
         tasks = self.get('tasks').json()
         for item in tasks["items"]:
-            print "{:15s} {:30s} {:10s}: {:30s} ({:10s})".format(self.name, item['name'],
-                                                                 item['state'], item['status'], item['duration'])
+            print("{:15s} {:30s} {:10s}: {:30s} ({:10s})".format(self.name, item['name'],
+                                                                 item['state'], item['status'], item['duration']))
 
     def update_properties(self, data):
         r = self.post('property/update', data)
@@ -264,12 +264,12 @@ class Client:
             r = self.get('dao/listFull/UserSession', data={'filter': json.dumps(filters)})
             return r.json()
         except Exception, e:
-            print e
+            print(e)
 
     def logs(self, info=True):
         for line in self.get("logReader").text.split("<br>"):
             if info or not " INFO " in line:
-                print line
+                print(line)
 
     def reset_password(self, newPassword):
         self.post("action/execute/change_password", {
@@ -296,7 +296,7 @@ class Client:
         if not stores:
             return
         for store in stores["items"]:
-            print store
+            print(store)
 
     def fs_sync(self, threads=4):
         resp = self.post("action/execute/synchronize_stores",

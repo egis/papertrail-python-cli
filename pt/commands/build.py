@@ -118,7 +118,7 @@ class PaperTrail(Builder):
         self.client = client
 
     def build(self, path):
-        print path
+        print(path)
         with open(path, 'rt') as script:
             self.client.upload_script(basename(path), script.read())
 

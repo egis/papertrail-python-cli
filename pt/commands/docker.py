@@ -18,24 +18,24 @@ def run():
 @click.pass_context
 def restore(ctx, name, bucket, access, secret, lic, swarm):
 
-    print "restoring %s" % name
+    print("restoring %s" % name)
     if swarm:
         state = _get_swarm_service_state(name)
         if "Running" in state:
-            print "removing service %s" % name
+            print("removing service %s" % name)
             _delete_swarm_service(name)
     else:
         state = _get_container_state(name)
         if "Running" in state:
             # stop the container and then start it adding ENV
-            print "stopping and removing %s" % name
+            print("stopping and removing %s" % name)
             _stop_docker_container(name)
             _delete_docker_container(name)
         if "Stopped" in state:
-            print "removing %s" % name
+            print("removing %s" % name)
             _delete_docker_container(name)
 
-    print "starting %s in wizard mode" % name
+    print("starting %s in wizard mode" % name)
     ctx.invoke(docker_run, name=name, version="nightly", wizard=True, swarm=swarm)
 
     json = {
@@ -54,7 +54,7 @@ def restore(ctx, name, bucket, access, secret, lic, swarm):
         ctx.obj.url = 'http://' + name
     response = ""
     while "Wizard" not in response:
-        print "Waiting for app to respond..."
+        print("Waiting for app to respond...")
         time.sleep(10)
         try:
             r = ctx.obj.get(url="")
@@ -97,7 +97,7 @@ def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mss
         data = '/opt/Data/%s' % name
 
     if install is None and version is None:
-        print "Must specify either a version or an install path"
+        print("Must specify either a version or an install path")
 
     if swarm:
         args = ["service", "create", "--with-registry-auth", "--network", "frontends", "--label", "ingress=true",
@@ -136,22 +136,22 @@ def docker_run(name, vhost, data, install, version, port, mem, debug, mysql, mss
 
 def _execute_docker_cmd(args, container_name):
     docker = sh.Command("docker")
-    print args
+    print(args)
     docker(args)
     if args[0] == "service":
-        print "Swarm node IP: %s" % _get_swarm_node_ip(container_name)
+        print("Swarm node IP: %s" % _get_swarm_node_ip(container_name))
     else:
-        print "Container IP: %s" % _get_container_ip(container_name)
+        print("Container IP: %s" % _get_container_ip(container_name))
 
 
 def _delete_swarm_service(service_name):
     docker = sh.Command("docker")
     try:
         docker(["service", "rm", service_name])
-        print "Giving docker some time to clean up"
+        print("Giving docker some time to clean up")
         time.sleep(30)
     except:
-        print "Something went wrong while removing %s" % service_name
+        print("Something went wrong while removing %s" % service_name)
 
 
 def _stop_docker_container(container_name):
@@ -160,7 +160,7 @@ def _stop_docker_container(container_name):
         docker("stop", container_name)
     except:
         # Container is not "present"
-        print "Something went wrong while stopping %s" % container_name
+        print("Something went wrong while stopping %s" % container_name)
 
 
 def _delete_docker_container(container_name):
@@ -169,7 +169,7 @@ def _delete_docker_container(container_name):
         docker("rm", container_name)
     except:
         # Container is not "present"
-        print "Something went wrong while removing %s" % container_name
+        print("Something went wrong while removing %s" % container_name)
 
 
 def _get_swarm_node_ip(container_name):
@@ -177,12 +177,12 @@ def _get_swarm_node_ip(container_name):
     state = "unknown"
     count = 0
     while state != "Running":
-        print "Waiting for container deployment..."
+        print("Waiting for container deployment...")
         time.sleep(5)
         state = _get_swarm_service_state(container_name)
         count += 1
         if count == 12:
-            print "Error: could not get swarm node IP"
+            print("Error: could not get swarm node IP")
             exit(1)
     ip = sh.awk(sh.xargs(sh.awk(sh.tail(sh.head(docker(["service", "ps", container_name]), "-2"), "-1"), "{print $4}"),
                          "host"), "{print $NF}").strip(' \t\n\r\'')
