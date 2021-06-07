@@ -13,6 +13,7 @@ jobs:
         - run: pip install dox
         - setup_remote_docker
         - run: dox
+        - run: pip install --upgrade pip
         - run: pip install -U -r requirements.txt
         - run: python setup.py sdist
         - run:
