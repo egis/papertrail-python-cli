@@ -3,7 +3,7 @@ click==6.6
 colorama==0.3.7
 pathtools==0.1.2
 progressbar2==3.53.1
-PyYAML==4.2b4
+PyYAML==3.11
 requests==2.23.0
 sh==1.11
 six==1.10.0
@@ -12,5 +12,5 @@ watchdog==0.8.3
 cookiecutter==1.5.1
 dnspython==1.15.0
 commons==0.7
-twisted==17.9.0
+twisted==20.3.0
 zope==4.0b1
