@@ -30,7 +30,7 @@ def get_status():
     if PLATFORM == 'nt':
         query, err = subprocess.Popen([SERVICE_EXE, "query", SERVICE_NAME], stdout=subprocess.PIPE).communicate()
 
-        state_regexp = re.compile(ur'^\s+STATE\s*:\s*(?P<num_code>\d+)\s+(?P<state>\w+)', re.MULTILINE)
+        state_regexp = re.compile('^\s+STATE\s*:\s*(?P<num_code>\d+)\s+(?P<state>\w+)', re.MULTILINE)
         state = re.search(state_regexp, query)
 
         if state.group('state') == 'STOPPED':
@@ -80,7 +80,7 @@ def stop():
             os.remove(PID_FILE)
 
             return True
-        except OSError, e:
+        except OSError as e:
             print(e)
             return False
 

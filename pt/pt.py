@@ -10,16 +10,15 @@ from os.path import basename
 import click
 import colorama
 
-from client import Client
-from pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
-import service
-import commands
-from utils import bgcolors, load_site_config, download_file
+from pt import service, commands
+from .client import Client
+from .pql import print_pql_response, print_pql_csv, print_pql_json, run_pql_repl
+from .utils import bgcolors, load_site_config, download_file
 import tempfile
 from cookiecutter.main import cookiecutter
 import subprocess
-
-from commons import *
+import requests
+#from commons import *
 
 
 @click.group()
@@ -110,11 +109,11 @@ def deploy_ci(client, project, install):
     Requires the CIRCLECI environment variable be set with an access token
     """
     url = "https://circleci.com/api/v1.1/project/github/%s?circle-token=%s" % (project, os.environ['CIRCLECI']);
-    build = http_get(url).json()[0]["build_num"]
+    build = requests.get(url).json()[0]["build_num"]
     url = "https://circleci.com/api/v1.1/project/github/%s/%s/artifacts?circle-token=%s" % (project,build, os.environ['CIRCLECI']);
 
 
-    for file in http_get(url).json():
+    for file in requests.get(url).json():
         if install and file["pretty_path"].endswith("-install.zip"):
             url = file["url"]
         elif not install and file["pretty_path"].endswith("-upgrade.zip"):

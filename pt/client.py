@@ -1,7 +1,13 @@
 import json
-import urlparse
+import os
+import urllib.parse
+from datetime import datetime
+import logging
+
 from dns import resolver
-from commons import *
+import requests
+
+from pt.utils import Timer, print_info, wait, print_fail, print_url, print_ok
 
 
 class Client:
@@ -16,14 +22,35 @@ class Client:
         self.password = password
 
     def post(self, url, data, headers={}, **kwargs):
-        return http_post(self.url + "/" + url, data=data, headers=headers,
-                         username=self.username, password=self.password, **kwargs)
+        print_url(self.url + "/" + url)
+        try:
+            r = requests.post(self.url + "/" + url, data=data, auth=(self.username, self.password), headers=headers,
+                              **kwargs)
+            if str(r.status_code)[0] == "5" or str(r.status_code)[0] == "4":
+                print_fail(str(r.status_code))
+            else:
+                print_ok(str(r.status_code))
+        except requests.exceptions.RequestException as e:
+            print_fail(str(e))
+            raise SystemExit()
+        return r
 
     def get(self, url, params=None, **kwargs):
-        return http_get(self.url + "/" + url, username=self.username, password=self.password, params=params, **kwargs)
+        print_url(self.url + "/" + url)
+        try:
+            r = requests.get(self.url + "/" + url, auth=(self.username, self.password), params=params,
+                             **kwargs)
+            if str(r.status_code)[0] == "5" or str(r.status_code)[0] == "4":
+                print_fail(str(r.status_code))
+            else:
+                print_ok(str(r.status_code))
+        except requests.exceptions.RequestException as e:
+            print_fail(str(e))
+            raise SystemExit()
+        return r
 
     def pql_query(self, query):
-        response = self.get('document/pql', { 'query': query, 'includeMetadata': True })
+        response = self.get('document/pql', {'query': query, 'includeMetadata': True})
         if response and response.status_code == 200:
             return response.json()
 
@@ -34,10 +61,11 @@ class Client:
                                                                  item['state'], item['status'], item['duration']))
 
     def ping(self, port=443):
-        host = urlparse.urlparse(self.url).netloc.split(":")[0]
+        host = urllib.urlparse(self.url).netloc.split(":")[0]
         records = resolver.query(host, 'A')
-        if len(records) is 0:
+        if len(records) == 0:  # check
             return False
+        from pythonping import ping
         return ping(records[0].address, port)
 
     def db_backup(self):
@@ -51,14 +79,14 @@ class Client:
             minute = 0
 
         self.update_properties({'db.backup.schedule': '%s %s * * *' % (minute, hour)})
-        wait(self.db_has_current_backup, 10)
+        os.wait(self.db_has_current_backup, 10)
         print("db backed up in " + str(start))
 
-    def get_s3_backup(self,access, secret, bucket, license=None):
+    def get_s3_backup(self, access, secret, bucket, license=None):
         print_info(" Getting last S3 backup ..")
-        from boto.s3.connection import S3Connection
-        s3 = S3Connection(is_secure=False, aws_access_key_id=access,aws_secret_access_key=secret)
-        _bucket = s3.get_bucket(bucket,validate=False)
+
+        s3 = boto.S3Connection(is_secure=False, aws_access_key_id=access, aws_secret_access_key=secret)
+        _bucket = s3.get_bucket(bucket, validate=False)
         max = None
         for key in _bucket.list(prefix='db2'):
             if not ".zip" in key.name:
@@ -78,7 +106,7 @@ class Client:
         if start is None:
             return False
         return self.server_time() - \
-            dt.datetime.strptime(start, '%Y-%m-%d %H:%M')
+               datetime.strptime(start, '%Y-%m-%d %H:%M')
 
     def db_has_current_backup(self):
         return self.db_backup_age().seconds < 60
@@ -88,7 +116,7 @@ class Client:
         if start is None:
             return False
         delta = self.server_time() - \
-            dt.datetime.strptime(start, '%Y-%m-%d %H:%M')
+                datetime.strptime(start, '%Y-%m-%d %H:%M')
         return delta.seconds < 60
 
     def db_last_backup_time(self, options=None):
@@ -101,18 +129,19 @@ class Client:
         try:
             r = self.get('dao/listFull/FileStore')
             if r is None:
-                return (None,None,None)
+                return (None, None, None)
             stores = r.json()
             if "totalCount" not in stores:
-                return (None,None,None)
+                return (None, None, None)
             if (stores['totalCount'] == 0):
-                return (None,None,None)
+                return (None, None, None)
             for store in stores["items"]:
                 if store["type"] == "S3":
-                    return store['properties']['accessKey'], store['properties']['secretKey'], store['properties']['bucket']
+                    return store['properties']['accessKey'], store['properties']['secretKey'], store['properties'][
+                        'bucket']
         except:
             pass
-        return (None,None,None)
+        return (None, None, None)
 
     def get_server_name(self):
         return self.execute("import com.egis.utils.*; Utils.hostname()")
@@ -143,7 +172,7 @@ class Client:
         self.update_properties({'db.backup.schedule': schedule})
 
     def update_file_store(self, bucket, access, secret, name='Cloud Store'):
-        storeId=None
+        storeId = None
         for store in self.get('dao/listFull/FileStore').json()["items"]:
             if store["name"] == name:
                 storeId = store["fileStoreId"]
@@ -170,8 +199,9 @@ class Client:
         tasks = self.get('tasks').json()
         for item in tasks["items"]:
             if item['name'] == task and 'end' in item:
-                return self.server_time() - dt.datetime.strptime(item["end"],'%Y-%m-%d %H:%M'), item["status"], item["state"]
-        return  (None,None,None)
+                return self.server_time() - datetime.strptime(item["end"], '%Y-%m-%d %H:%M'), item["status"], item[
+                    "state"]
+        return (None, None, None)
 
     def last_task_time(self, task):
         end = None
@@ -192,7 +222,7 @@ class Client:
 
     def update_properties(self, data):
         r = self.post('property/update', data)
-        print_response(r)
+        print_info(r)  # Coudn't fix print_response(r) so changed to info
         props = self.get_properties()
         for key in data:
             if data[key] != props[key]:
@@ -205,18 +235,18 @@ class Client:
         self.post('system/changeMode/%s' % mode, {})
 
     def new_token(self, url):
-        response = self.get('token/generate', data={ 'url': url })
+        response = self.get('token/generate', data={'url': url})
         if response.status_code == 200:
             return response.text
 
     def new_form(self, form):
-        response = self.post('action/execute/new_form', { 'form': form })
+        response = self.post('action/execute/new_form', {'form': form})
         if response.status_code == 200:
             return response.json()
 
     def update_document(self, path, contents):
         return self.post('public/file/{}'.format(path), data=contents,
-                         headers={ 'Content-Type': 'application/octet-stream' })
+                         headers={'Content-Type': 'application/octet-stream'})
 
     def upload_script(self, path, script):
         result = self.update_document('System/scripts/{}'.format(path), script)
@@ -254,16 +284,16 @@ class Client:
             return response.text
 
     def execute(self, script):
-        result = self.post('script/execute', {'code': script},stream=True)
+        result = self.post('script/execute', {'code': script}, stream=True)
         text = result.text
-        return text.replace("\\n", "\n").replace('result =' , '').strip()
+        return text.replace("\\n", "\n").replace('result =', '').strip()
 
     def sessions(self):
         try:
             filters = [{'value': '', 'field': 'endDate', 'type': 'null'}]
             r = self.get('dao/listFull/UserSession', data={'filter': json.dumps(filters)})
             return r.json()
-        except Exception, e:
+        except Exception as e:
             print(e)
 
     def logs(self, info=True):
@@ -281,7 +311,7 @@ class Client:
         self.post("action/execute/index_repair", {"cmd": "save"})
 
     def server_time(self):
-        return dt.datetime.strptime(self.execute('com.egis.utils.DateUtils.getISO(new Date())'), '%Y-%m-%d %H:%M:%S')
+        return datetime.strptime(self.execute('com.egis.utils.DateUtils.getISO(new Date())'), '%Y-%m-%d %H:%M:%S')
 
     def get_store(self, name):
         stores = self.get('dao/listFull/FileStore').json()
