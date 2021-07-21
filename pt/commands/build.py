@@ -66,7 +66,7 @@ class Builder(FileSystemEventHandler):
             self.build(path)
             cprint("Completed in %s " %
                    (datetime.datetime.now().replace(microsecond=0) - start), 'green')
-        except Exception, e:
+        except Exception as e:
             cprint(e.stderr, 'red')
             print(notify(e.stderr))
 

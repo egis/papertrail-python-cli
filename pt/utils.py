@@ -2,10 +2,12 @@ from subprocess import *
 import subprocess
 from socket import *
 import time
-import os, os.path
+import os , os.path
 import datetime as dt
 import threading
 import sys
+import requests
+
 
 class Timer:
 
@@ -23,20 +25,23 @@ class bgcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
+    PURPLE = "\033[0;35m"
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
 
 def print_info(str):
-    sys.stderr.write(bgcolors.HEADER + str + bgcolors.ENDC)
+    print(bgcolors.HEADER + str + bgcolors.ENDC)
 
+def print_url(str):
+    print(bgcolors.PURPLE + str + bgcolors.ENDC)
 
 def print_ok(str):
-    sys.stderr.write(bgcolors.OKGREEN + str + bgcolors.ENDC)
+    print(bgcolors.OKGREEN + str + bgcolors.ENDC)
 
 def print_fail(str):
-    sys.stderr.write(bgcolors.FAIL + str + bgcolors.ENDC)
+    print(bgcolors.FAIL + str + bgcolors.ENDC)
 
 def load_site_config(site):
     path = None
@@ -63,12 +68,12 @@ def download_file(url, local_filename):
     return local_filename
 
 
-def execute(command, async=False,  env=os.environ):
+def execute(command, async1=False,  env=os.environ):
     print_info("executing ")
     print(command)
 
     p = Popen(command, stdout=subprocess.PIPE, shell=True, env=os.environ)
-    if async:
+    if async1:
         call_async(print_process_result, [p, command])
     else:
         return print_process_result(p, command)
@@ -110,7 +115,7 @@ def wait(condition, sleep=1):
         result = condition()
         time.sleep(sleep)
 
-def async(func, args):
+def async1(func, args):
     t = threading.Thread(target=func,args=args)
     t.daemon = True
     t.start()

@@ -4,7 +4,9 @@ import pkgutil
 import importlib
 
 import click
-from commons import *
+#from commons import *
+from pt.utils import print_fail
+
 
 def init_plugins(group):
     """Imports extra commands from modules to a provided click command group."""
@@ -20,5 +22,5 @@ def init_plugins(group):
                     # sys.exit(-1)
                 else:
                     group.add_command(module.run)
-            except Exception, e:
+            except Exception as e:
                 print_fail('[%s] %s' % (module_name, str(e) + str(type(e))))
