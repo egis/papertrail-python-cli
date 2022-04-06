@@ -12,5 +12,5 @@ watchdog==0.8.3
 cookiecutter==1.5.1
 dnspython==1.15.0
 commons==0.7
-twisted==20.3.0
+twisted==22.2.0
 zope==4.0b1
