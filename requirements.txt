@@ -9,7 +9,7 @@ sh==1.11
 six==1.10.0
 termcolor==1.1.0
 watchdog==0.8.3
-cookiecutter==1.5.1
+cookiecutter==2.1.1
 dnspython==1.15.0
 commons==0.7
 twisted==20.3.0
